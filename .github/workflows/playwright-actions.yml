@@ -1,0 +1,260 @@
+name: build-playwright-test
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  playwright-tests:
+    runs-on:
+      - codebuild-content-services-frontend-repo-${{ github.run_id }}-${{ github.run_attempt }}
+      - instance-size:medium
+      - buildspec-override:true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Create front-end .env file
+        run: |
+          # Check if the secrets are set
+          if [ -z "$USER1USERNAME" ]; then
+            echo "Error: USER1USERNAME secret is not set."
+            exit 1
+          fi
+
+          if [ -z "$USER1PASSWORD" ]; then
+            echo "Error: USER1PASSWORD secret is not set."
+            exit 1
+          fi
+
+          # Create the .env file and write the secrets and other variables to it
+          {
+            echo "USER1USERNAME=$USER1USERNAME"
+            echo "USER1PASSWORD=$USER1PASSWORD"
+            echo "BASE_URL=https://stage.foo.redhat.com:1337"
+            echo "CI=true"
+          } >> .env
+
+          echo ".env file created successfully."
+
+      - name: Get current PR URL
+        id: get-pr-url
+        run: |
+          # Extract the pull request URL from the event payload
+          pr_url=$(jq -r '.pull_request.html_url' < "$GITHUB_EVENT_PATH")
+          echo "Pull Request URL: $pr_url"
+          # Set the PR URL as an output using the environment file
+          echo "pr_url=$pr_url" >> $GITHUB_ENV
+
+      - name: Get appropriate back-end branch
+        run: |
+          chmod +x .github/workflowScripts/getBackendBranch.sh
+          .github/workflowScripts/getBackendBranch.sh "${{ env.pr_url }}"
+
+      - name: Copy the example config
+        working-directory: content-sources-backend
+        run: cp ./configs/config.yaml.example ./configs/config.yaml
+
+      - name: Create cdn.pem file
+        working-directory: content-sources-backend
+        run: |
+          echo "$REDHAT_CDN_CERT" | sed 's/\\n/\n/g' > ./configs/cdn.pem
+
+      - name: Update cert_path in config.yaml
+        working-directory: content-sources-backend
+        run: |
+          sed -i 's|# cert_path:.*|cert_path: ./configs/cdn.pem|' ./configs/config.yaml
+
+      - name: Throw error if cert is invalid
+        working-directory: content-sources-backend
+        run: |
+          if ! openssl x509 -in ./configs/cdn.pem -noout; then
+            echo "Invalid PEM certificate format"
+            exit 1
+          fi
+          echo "PEM certificate is valid"
+
+      - name: Compare .nvmrc files
+        id: compare-nvmrc
+        run: |
+          # Get both .nvmrc files
+          backendNvmrc="content-sources-backend/_playwright-tests/.nvmrc"
+          frontendNvmrc=".nvmrc"
+
+          # Check if both files exist
+          if [ ! -f "$backendNvmrc" ]; then
+            echo "Error: $backendNvmrc does not exist."
+            exit 1
+          fi
+
+          if [ ! -f "$frontendNvmrc" ]; then
+            echo "Error: $frontendNvmrc does not exist."
+            exit 1
+          fi
+
+          # Compare the contents of the two files
+          if ! cmp -s "$backendNvmrc" "$frontendNvmrc"; then
+            echo "Error: The .nvmrc files are not the same."
+            exit 1
+          fi
+
+          echo "The .nvmrc versions are the same!"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      # - name: Cache - API-test node_modules
+      #        if: ${{ !cancelled() }}
+      #        uses: actions/cache@v4
+      #        with:
+      #          path: content-sources-backend/_playwright-tests/node_modules
+      #          key: ${{ runner.os }}-api-node-modules-${{ hashFiles('content_sources_backend/_playwright-tests/yarn.lock') }}
+      #          restore-keys: ${{ runner.os }}-api-node-modules-
+
+      - name: Cache - node_modules
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            dist
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-frontend-node-modules-
+
+      - name: Cache - Backend compose files
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v4
+        with:
+          path: content-sources-backend/release
+          key: ${{ runner.os }}-compose-${{ hashFiles('content-sources-backend/compose_files/pulp/docker-compose.yml') }}-${{ hashFiles('content_sources_backend/compose_files/candlepin/Dockerfile') }}
+          restore-keys: ${{ runner.os }}-compose-
+
+      - name: Cache Playwright browsers
+        if: ${{ !cancelled() }}
+        id: cache-playwright-browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('playwright.config.ts') }}
+          restore-keys: ${{ runner.os }}-playwright-
+
+      - name: Install front-end dependencies
+        run: yarn install
+
+      - name: Build front-end FEC container
+        run: yarn build
+      # This prevents an error related to minimum watchers when running the front-end and playwright
+      - name: Increase file watchers limit
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - name: Update /etc/hosts
+        run: sudo npm run patch:hosts
+
+      - name: Install front-end Playwright Browsers
+        run: yarn playwright install --with-deps
+
+      - name: Start front-end server
+        run: |
+          BACKEND_PORT=8000 yarn start:stage &
+          npx wait-on https://localhost:1337
+
+      - name: Run get_go_version.sh script
+        working-directory: content-sources-backend
+        id: get-go-version
+        run: |
+          chmod +x ./scripts/get_go_version.sh
+          GO_VERSION=$(./scripts/get_go_version.sh ./go.mod)
+          echo "go-version=$GO_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '${{ steps.get-go-version.outputs.go-version }}'
+
+      - name: Set up Make
+        working-directory: content-sources-backend
+        run: sudo apt-get install make
+
+      - name: Backend compose-up
+        working-directory: content-sources-backend
+        run: make compose-down compose-clean compose-up
+
+      - name: Import the smallest Redhat repos
+        working-directory: content-sources-backend
+        run: OPTIONS_REPOSITORY_IMPORT_FILTER=small make repos-import
+
+      - name: Run snapshot for redhat repo
+        working-directory: content-sources-backend
+        run: go run cmd/external-repos/main.go snapshot https://cdn.redhat.com/content/dist/layered/rhel8/x86_64/ansible/2/os/
+
+      - name: Backend run
+        working-directory: content-sources-backend
+        run: make run &
+
+      - name: Wait for backend to be ready
+        run: |
+          chmod +x .github/workflowScripts/waitForBackend.sh
+          .github/workflowScripts/waitForBackend.sh
+
+      - name: Run front-end Playwright tests
+        env:
+          CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID }}
+          CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
+        run: yarn playwright test
+
+      - name: Publish front-end Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: './playwright-ctrf/playwright-ctrf.json'
+        if: ${{ !cancelled() }}
+
+      - name: Store front-end Test report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 10
+
+# Running API tests as part of `playwright-tests`
+# - name: Create backend .env file
+#   working-directory: content-sources-backend/_playwright-tests
+#   run: |
+#     echo "BASE_URL=http://127.0.0.1:8000" >> .env
+#     echo "TOKEN=apple" >> .env
+#     echo "CI=true" >> .env
+#
+# - name: Install API playwright and dependencies
+#   working-directory: content-sources-backend/_playwright-tests
+#   run: yarn install
+#
+# - name: Install Playwright Browsers
+#   working-directory: content-sources-backend/_playwright-tests
+#   run: yarn playwright install --with-deps
+#
+# - name: Run API Playwright tests
+#   working-directory: content-sources-backend/_playwright-tests
+#   run: yarn playwright test
+#
+# - name: Publish API Test Report
+#   uses: ctrf-io/github-test-reporter@v1
+#   with:
+#     report-path: './content-sources-backend/_playwright-tests/playwright-ctrf/playwright-ctrf.json'
+#   if: ${{ !cancelled() }}
+#
+# - name: Store API Test report
+#   uses: actions/upload-artifact@v4
+#   if: ${{ !cancelled() }}
+#   with:
+#     name: playwright-ctrf-backend
+#     path: ./content-sources-backend/_playwright-tests/playwright-ctrf
+#     retention-days: 10
