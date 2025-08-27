@@ -101,7 +101,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }} | Boot test run>: *SUCCESS* :partymeow:"
+                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :last_quarter_moon_with_face: Nightly boot test run>: *SUCCESS* :partymeow:"
                       }
                     }
                   ]
@@ -124,8 +124,8 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }} | Boot test run>: *FAILED* :big-sad:"
-                      }
+                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :last_quarter_moon_with_face: Nightly boot test run>: *FAILED* :big-sad:"
+                      } 
                     }
                   ]
                 }
