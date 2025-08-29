@@ -13,9 +13,7 @@ on:
 jobs:
   boot-tests:
     runs-on:
-      - codebuild-image-builder-frontend-${{ github.run_id }}-${{ github.run_attempt }}
-      - instance-size:large
-      - buildspec-override:true
+      - ubuntu-latest
     permissions:
       pull-requests: read
 
