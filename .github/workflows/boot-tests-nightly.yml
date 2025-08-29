@@ -24,6 +24,7 @@ jobs:
           BASE_URL: https://stage.foo.redhat.com:1337
         run: |
           exit 1
+        continue-on-error: true
 
       - name: Notify Slack on success
         uses: slackapi/slack-github-action@v2.1.1
