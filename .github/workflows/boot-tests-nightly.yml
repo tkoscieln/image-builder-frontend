@@ -23,12 +23,11 @@ jobs:
         env:
           BASE_URL: https://stage.foo.redhat.com:1337
         run: |
-          echo "Hello"
-        continue-on-error: true
+          echo "fail"
 
       - name: Notify Slack on success
         uses: slackapi/slack-github-action@v2.1.1
-        if: steps.playwright-tests.outcome == 'success'
+        if: ${{ success() }}
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
@@ -52,7 +51,7 @@ jobs:
 
       - name: Notify Slack on failure
         uses: slackapi/slack-github-action@v2.1.1
-        if: steps.playwright-tests.outcome != 'success'
+        if: ${{ failure() }}
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
