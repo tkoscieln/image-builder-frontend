@@ -22,7 +22,9 @@ describe('Services Component', () => {
         await screen.findByRole('heading', { name: /Systemd services/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/Enable, disable and mask systemd services/i),
+        screen.getByText(
+          /Configure systemd units to manage your system.s services and startup logic/i,
+        ),
       ).toBeInTheDocument();
     });
 

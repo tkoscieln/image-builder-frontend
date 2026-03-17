@@ -16,14 +16,13 @@ import { UNDEFINED_GROUPS_WARNING_KEY } from '../../constants';
 import { useAppDispatch } from '../../store/hooks';
 
 const DEFAULT_TRUNCATE_LENGTH = 20;
-const CHIP_COLLAPSE_THRESHOLD = 4;
+const DEFAULT_CHIP_COLLAPSE_THRESHOLD = 4;
 
 type LabelInputProps = {
   ariaLabel: string;
   placeholder: string;
   validator: (value: string) => boolean;
   requiredList?: string[] | undefined;
-  requiredCategoryName?: string;
   list: string[] | undefined;
   item: string;
   addAction: (value: string) => UnknownAction;
@@ -32,6 +31,7 @@ type LabelInputProps = {
   fieldName: string;
   truncateLength?: number;
   isCompact?: boolean;
+  chipCollapseThreshold?: number;
 };
 
 const LabelInput = ({
@@ -40,7 +40,6 @@ const LabelInput = ({
   validator,
   list,
   requiredList,
-  requiredCategoryName,
   item,
   addAction,
   removeAction,
@@ -48,6 +47,7 @@ const LabelInput = ({
   fieldName,
   truncateLength = DEFAULT_TRUNCATE_LENGTH,
   isCompact = false,
+  chipCollapseThreshold = DEFAULT_CHIP_COLLAPSE_THRESHOLD,
 }: LabelInputProps) => {
   const dispatch = useAppDispatch();
 
@@ -153,30 +153,40 @@ const LabelInput = ({
           value={inputValue}
           onKeyDown={(e) => handleKeyDown(e, inputValue)}
         >
-          {list && list.length > 0 && (
+          {(requiredList?.length ?? 0) + (list?.length ?? 0) > 0 && (
             <LabelGroup
               isCompact={isCompact}
-              numLabels={CHIP_COLLAPSE_THRESHOLD}
+              numLabels={chipCollapseThreshold}
               expandedText='Show less'
               collapsedText={
-                list.length > CHIP_COLLAPSE_THRESHOLD
-                  ? `${list.length - CHIP_COLLAPSE_THRESHOLD} more`
+                (requiredList?.length ?? 0) + (list?.length ?? 0) >
+                chipCollapseThreshold
+                  ? `${(list?.length ?? 0) + (requiredList?.length ?? 0) - chipCollapseThreshold} more`
                   : undefined
               }
               className='pf-v6-u-mr-sm'
             >
-              {list.map((labelItem) => (
-                <Label
-                  key={labelItem}
-                  color='blue'
-                  isCompact={isCompact}
-                  onClose={(e) => handleRemoveItem(e, labelItem)}
-                >
-                  {labelItem.length > truncateLength
-                    ? `${labelItem.slice(0, truncateLength)}...`
-                    : labelItem}
-                </Label>
-              ))}
+              {requiredList &&
+                requiredList.length > 0 &&
+                requiredList.map((item) => (
+                  <Label key={item} isCompact>
+                    {item}
+                  </Label>
+                ))}
+              {list &&
+                list.length > 0 &&
+                list.map((labelItem) => (
+                  <Label
+                    key={labelItem}
+                    color='blue'
+                    isCompact={isCompact}
+                    onClose={(e) => handleRemoveItem(e, labelItem)}
+                  >
+                    {labelItem.length > truncateLength
+                      ? `${labelItem.slice(0, truncateLength)}...`
+                      : labelItem}
+                  </Label>
+                ))}
             </LabelGroup>
           )}
         </TextInputGroupMain>
@@ -195,19 +205,6 @@ const LabelInput = ({
         <HelperText>
           <HelperTextItem variant={'warning'}>{warning}</HelperTextItem>
         </HelperText>
-      )}
-      {requiredList && requiredList.length > 0 && (
-        <LabelGroup
-          categoryName={requiredCategoryName}
-          numLabels={20}
-          className='pf-v6-u-mt-sm pf-v6-u-w-100'
-        >
-          {requiredList.map((item) => (
-            <Label key={item} isCompact>
-              {item}
-            </Label>
-          ))}
-        </LabelGroup>
       )}
     </>
   );
