@@ -26,6 +26,9 @@ import {
   selectAapTlsCertificateAuthority,
   selectAapTlsConfirmation,
   selectActivationKey,
+  selectAwsAccountId,
+  selectAwsShareMethod,
+  selectAwsSourceId,
   selectAzureResourceGroup,
   selectAzureSubscriptionId,
   selectAzureTenantId,
@@ -38,6 +41,9 @@ import {
   selectFirewall,
   selectFirstBootScript,
   selectFscMode,
+  selectGcpAccountType,
+  selectGcpEmail,
+  selectGcpShareMethod,
   selectHostname,
   selectImageTypes,
   selectKernel,
@@ -69,10 +75,13 @@ import {
   getDuplicateMountPoints,
   getDuplicateNames,
   getInvalidMountpoints,
+  isAwsAccountIdValid,
   isAzureResourceGroupValid,
   isAzureSubscriptionIdValid,
   isAzureTenantGUIDValid,
   isBlueprintNameValid,
+  isGcpDomainValid,
+  isGcpEmailValid,
   isHostnameValid,
   isKernelArgumentValid,
   isKernelNameValid,
@@ -1158,7 +1167,7 @@ export function useAzureValidation(): StepValidation {
   const azureResourceGroup = useAppSelector(selectAzureResourceGroup);
 
   if (!isAzureTenantGUIDValid(azureTenantId)) {
-    errors.tenandId = 'Invalid tenant id';
+    errors.tenantId = 'Invalid tenant id';
   }
 
   if (!isAzureSubscriptionIdValid(azureSubscriptionId)) {
@@ -1167,6 +1176,46 @@ export function useAzureValidation(): StepValidation {
 
   if (!isAzureResourceGroupValid(azureResourceGroup)) {
     errors.resourceGroup = 'Invalid resource group';
+  }
+
+  return { errors, disabledNext: Object.keys(errors).length > 0 };
+}
+
+export function useGcpValidation(): StepValidation {
+  const errors: Record<string, string> = {};
+  const gcpShareMethod = useAppSelector(selectGcpShareMethod);
+  const gcpAccountType = useAppSelector(selectGcpAccountType);
+  const gcpEmail = useAppSelector(selectGcpEmail);
+
+  if (gcpShareMethod === 'withGoogle') {
+    if (gcpAccountType === 'domain') {
+      if (!isGcpDomainValid(gcpEmail)) {
+        errors.email = 'Invalid domain';
+      }
+    } else {
+      if (!isGcpEmailValid(gcpEmail)) {
+        errors.email = 'Invalid email';
+      }
+    }
+  }
+
+  return { errors, disabledNext: Object.keys(errors).length > 0 };
+}
+
+export function useAwsValidation(): StepValidation {
+  const errors: Record<string, string> = {};
+  const awsShareMethod = useAppSelector(selectAwsShareMethod);
+  const awsAccountId = useAppSelector(selectAwsAccountId);
+  const awsSourceId = useAppSelector(selectAwsSourceId);
+
+  if (awsShareMethod === 'manual') {
+    if (!isAwsAccountIdValid(awsAccountId)) {
+      errors.accountId = 'Invalid account id';
+    }
+  } else {
+    if (awsSourceId === undefined) {
+      errors.sourceId = 'Invalid source id';
+    }
   }
 
   return { errors, disabledNext: Object.keys(errors).length > 0 };
