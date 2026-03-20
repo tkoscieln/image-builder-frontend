@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
-  Content,
-  ContentVariants,
   Form,
   FormGroup,
+  MenuToggle,
+  MenuToggleElement,
   Radio,
-  Title,
+  Select,
+  SelectList,
+  SelectOption,
 } from '@patternfly/react-core';
 
+import { ValidatedInput } from '@/Components/CreateImageWizard/ValidatedInput';
+import {
+  isGcpDomainValid,
+  isGcpEmailValid,
+} from '@/Components/CreateImageWizard/validators';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   changeGcpAccountType,
   changeGcpEmail,
@@ -18,10 +26,6 @@ import {
   selectGcpShareMethod,
 } from '@/store/slices/wizard';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
-import { ValidatedInput } from '../../../ValidatedInput';
-import { isGcpDomainValid, isGcpEmailValid } from '../../../validators';
-
 export type GcpShareMethod = 'withGoogle' | 'withInsights';
 export type GcpAccountType =
   | 'user'
@@ -30,35 +34,53 @@ export type GcpAccountType =
   | 'domain'
   | undefined;
 
+export const GCP_ACCOUNT_TYPE_OPTIONS = new Map([
+  ['user', 'Google account'],
+  ['serviceAccount', 'Service account'],
+  ['group', 'Google group'],
+  ['domain', 'Google Workspace domain'],
+]);
+
 const Gcp = () => {
   const dispatch = useAppDispatch();
 
   const accountType = useAppSelector(selectGcpAccountType);
   const shareMethod = useAppSelector(selectGcpShareMethod);
   const gcpEmail = useAppSelector(selectGcpEmail);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const accountTypeOptions = GCP_ACCOUNT_TYPE_OPTIONS;
+
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={onToggleClick}
+      isExpanded={isOpen}
+      style={
+        {
+          minWidth: '50%',
+          maxWidth: '100%',
+        } as React.CSSProperties
+      }
+      data-testid='arch_select'
+    >
+      {accountType
+        ? accountTypeOptions.get(accountType)
+        : 'Select account type'}
+    </MenuToggle>
+  );
 
   return (
-    <Form>
-      <Title headingLevel='h1' size='xl'>
-        Target environment - Google Cloud
-      </Title>
-      <Content>
-        Select how to share your image. The image you create can be used to
-        launch instances on GCP, regardless of which method you select.
-      </Content>
+    <Form className='pf-v6-u-pb-md'>
       <FormGroup label='Select image sharing' isRequired>
         <Radio
           id='share-with-google'
           label='Share image with a Google account'
           name='gcp-share-method-type'
-          description={
-            <Content component={ContentVariants.small}>
-              Your image will be uploaded to GCP and shared with the account you
-              provide below.
-              <b>The image expires in 14 days.</b> To keep permanent access to
-              your image, copy it to your GCP project.
-            </Content>
-          }
           isChecked={shareMethod === 'withGoogle'}
           onChange={() => {
             dispatch(changeGcpShareMethod('withGoogle'));
@@ -69,14 +91,6 @@ const Gcp = () => {
           id='share-with-insights'
           label={`Share image with Red Hat Lightspeed only`}
           name='gcp-share-method-type'
-          description={
-            <Content component={ContentVariants.small}>
-              Your image will be uploaded to GCP and shared with Red Hat
-              Lightspeed.
-              <b> The image expires in 14 days.</b> You cannot access or
-              recreate this image in your GCP project.
-            </Content>
-          }
           isChecked={shareMethod === 'withInsights'}
           onChange={() => {
             dispatch(changeGcpShareMethod('withInsights'));
@@ -86,42 +100,32 @@ const Gcp = () => {
       {shareMethod === 'withGoogle' && (
         <>
           <FormGroup label='Account type' isRequired>
-            <Radio
-              id='google-account'
-              label='Google account'
-              name='google-account-type'
-              isChecked={accountType === 'user'}
-              onChange={() => {
-                dispatch(changeGcpAccountType('user'));
+            <Select
+              isOpen={isOpen}
+              selected={accountType}
+              onSelect={(_event, value) => {
+                dispatch(changeGcpAccountType(value));
+                setIsOpen(false);
               }}
-            />
-            <Radio
-              id='service-account'
-              label='Service account'
-              name='google-account-type'
-              isChecked={accountType === 'serviceAccount'}
-              onChange={() => {
-                dispatch(changeGcpAccountType('serviceAccount'));
-              }}
-            />
-            <Radio
-              id='google-group'
-              label='Google group'
-              name='google-account-type'
-              isChecked={accountType === 'group'}
-              onChange={() => {
-                dispatch(changeGcpAccountType('group'));
-              }}
-            />
-            <Radio
-              id='google-domain'
-              label='Google Workspace domain'
-              name='google-account-type'
-              isChecked={accountType === 'domain'}
-              onChange={() => {
-                dispatch(changeGcpAccountType('domain'));
-              }}
-            />
+              onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+              toggle={toggle}
+              shouldFocusToggleOnSelect
+            >
+              <SelectList>
+                <SelectOption key='user' value='user'>
+                  {accountTypeOptions.get('user')}
+                </SelectOption>
+                <SelectOption key='serviceAccount' value='serviceAccount'>
+                  {accountTypeOptions.get('serviceAccount')}
+                </SelectOption>
+                <SelectOption key='group' value='group'>
+                  {accountTypeOptions.get('group')}
+                </SelectOption>
+                <SelectOption key='domain' value='domain'>
+                  {accountTypeOptions.get('domain')}
+                </SelectOption>
+              </SelectList>
+            </Select>
           </FormGroup>
           <FormGroup
             label={
