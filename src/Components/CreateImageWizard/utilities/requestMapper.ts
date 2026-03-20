@@ -141,8 +141,8 @@ import {
   convertSchemaToIBCustomRepo,
   convertSchemaToIBPayloadRepo,
 } from '../steps/Repositories/components/Utilities';
-import { AwsShareMethod } from '../steps/TargetEnvironment/Aws';
-import { GcpAccountType, GcpShareMethod } from '../steps/TargetEnvironment/Gcp';
+import { AwsShareMethod } from '../steps/ImageOutput/components/Aws';
+import { GcpAccountType, GcpShareMethod } from '../steps/ImageOutput/components/Gcp';
 
 /**
  * This function maps the wizard state to a valid CreateBlueprint request object

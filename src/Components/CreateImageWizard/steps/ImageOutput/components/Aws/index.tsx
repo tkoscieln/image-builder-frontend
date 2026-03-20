@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import {
   Button,
-  Content,
   Form,
   FormGroup,
   Gallery,
@@ -15,16 +14,15 @@ import {
   Select,
   SelectOption,
   TextInput,
-  Title,
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import { AwsAccountId } from './AwsAccountId';
 import { AwsSourcesSelect } from './AwsSourcesSelect';
 
-import { AWS_REGIONS } from '../../../../../constants';
-import { selectIsOnPremise } from '../../../../../store/envSlice';
-import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
+import { AWS_REGIONS } from '../../../../../../constants';
+import { selectIsOnPremise } from '../../../../../../store/envSlice';
+import { useAppDispatch, useAppSelector } from '../../../../../../store/hooks';
 import {
   changeAwsAccountId,
   changeAwsRegion,
@@ -33,9 +31,9 @@ import {
   selectAwsAccountId,
   selectAwsRegion,
   selectAwsShareMethod,
-} from '../../../../../store/wizardSlice';
-import { ValidatedInput } from '../../../ValidatedInput';
-import { isAwsAccountIdValid } from '../../../validators';
+} from '../../../../../../store/wizardSlice';
+import { ValidatedInput } from '../../../../ValidatedInput';
+import { isAwsAccountIdValid } from '../../../../validators';
 
 export type AwsShareMethod = 'manual' | 'sources';
 
@@ -113,22 +111,9 @@ const Aws = () => {
   const region = useAppSelector(selectAwsRegion);
 
   return (
-    <Form>
-      <Title headingLevel='h1' size='xl'>
-        Target environment - Amazon Web Services
-      </Title>
-      <Content>
-        {isOnPremise
-          ? 'Your image will be uploaded to AWS in the region you select below.'
-          : 'Your image will be uploaded to AWS and shared with the account you provide below.'}
-      </Content>
+    <Form className='pf-v6-u-pb-md'>
       {!isOnPremise && (
         <>
-          <Content>
-            <b>The shared image will expire within 14 days.</b> To permanently
-            access the image, copy the image, which will be shared to your
-            account by Red Hat, to your own AWS account.
-          </Content>
           <FormGroup label='Share method:'>
             <Radio
               id='share-with-source'

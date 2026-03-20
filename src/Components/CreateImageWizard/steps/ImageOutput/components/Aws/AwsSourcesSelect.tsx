@@ -18,11 +18,11 @@ import { TimesIcon } from '@patternfly/react-icons';
 
 import { useGetSourceListQuery } from '@/store/api/provisioning';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../../../store/hooks';
 import {
   changeAwsSourceId,
   selectAwsSourceId,
-} from '../../../../../store/wizardSlice';
+} from '../../../../../../store/wizardSlice';
 
 export const AwsSourcesSelect = () => {
   const dispatch = useAppDispatch();

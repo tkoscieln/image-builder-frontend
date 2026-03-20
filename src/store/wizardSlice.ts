@@ -31,11 +31,11 @@ import {
   GroupWithRepositoryInfo,
   IBPackageWithRepositoryInfo,
 } from '../Components/CreateImageWizard/steps/Packages/packagesTypes';
-import type { AwsShareMethod } from '../Components/CreateImageWizard/steps/TargetEnvironment/Aws';
+import type { AwsShareMethod } from '../Components/CreateImageWizard/steps/ImageOutput/components/Aws';
 import type {
   GcpAccountType,
   GcpShareMethod,
-} from '../Components/CreateImageWizard/steps/TargetEnvironment/Gcp';
+} from '../Components/CreateImageWizard/steps/ImageOutput/components/Gcp';
 import type { V1ListSourceResponseItem } from '../Components/CreateImageWizard/types';
 import { generateDefaultName } from '../Components/CreateImageWizard/utilities/useGenerateDefaultName';
 import { RHEL_10, X86_64 } from '../constants';

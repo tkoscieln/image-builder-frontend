@@ -10,11 +10,11 @@ import {
 
 import { useGetSourceUploadInfoQuery } from '@/store/api/provisioning';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../../../store/hooks';
 import {
   changeAwsAccountId,
   selectAwsSourceId,
-} from '../../../../../store/wizardSlice';
+} from '../../../../../../store/wizardSlice';
 
 export const AwsAccountId = () => {
   const dispatch = useAppDispatch();

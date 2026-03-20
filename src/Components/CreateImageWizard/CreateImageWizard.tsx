@@ -35,18 +35,17 @@ import ReviewStep from './steps/Review';
 import ReviewWizardFooter from './steps/Review/Footer/Footer';
 import ServicesStep from './steps/Services';
 import RepeatableBuildStep from './steps/Snapshot';
-import Aws from './steps/TargetEnvironment/Aws';
-import Azure from './steps/TargetEnvironment/Azure';
-import Gcp from './steps/TargetEnvironment/Gcp';
 import TimezoneStep from './steps/Timezone';
 import UsersStep from './steps/UsersAndGroups';
 import {
   useAAPValidation,
+  useAwsValidation,
   useAzureValidation,
   useDetailsValidation,
   useFilesystemValidation,
   useFirewallValidation,
   useFirstBootValidation,
+  useGcpValidation,
   useHostnameValidation,
   useKernelValidation,
   useLocaleValidation,
@@ -57,11 +56,6 @@ import {
   useUserGroupsValidation,
   useUsersValidation,
 } from './utilities/useValidation';
-import {
-  isAwsAccountIdValid,
-  isGcpDomainValid,
-  isGcpEmailValid,
-} from './validators';
 
 import {
   AARCH64,
@@ -81,16 +75,7 @@ import {
   changeDistribution,
   changeTimezone,
   initializeWizard,
-  selectAwsAccountId,
-  selectAwsShareMethod,
-  selectAwsSourceId,
-  selectAzureResourceGroup,
-  selectAzureSubscriptionId,
-  selectAzureTenantId,
   selectDistribution,
-  selectGcpAccountType,
-  selectGcpEmail,
-  selectGcpShareMethod,
   selectImageSource,
   selectImageTypes,
   selectIsImageMode,
@@ -252,17 +237,10 @@ const CreateImageWizard = ({ isEdit }: CreateImageWizardProps) => {
   const isImageMode = useAppSelector(selectIsImageMode);
   const imageSource = useAppSelector(selectImageSource);
   // AWS
-  const awsShareMethod = useAppSelector(selectAwsShareMethod);
-  const awsAccountId = useAppSelector(selectAwsAccountId);
-  const awsSourceId = useAppSelector(selectAwsSourceId);
+  const awsValidation = useAwsValidation();
   // GCP
-  const gcpShareMethod = useAppSelector(selectGcpShareMethod);
-  const gcpAccountType = useAppSelector(selectGcpAccountType);
-  const gcpEmail = useAppSelector(selectGcpEmail);
+  const gcpValidation = useGcpValidation();
   // AZURE
-  const azureTenantId = useAppSelector(selectAzureTenantId);
-  const azureSubscriptionId = useAppSelector(selectAzureSubscriptionId);
-  const azureResourceGroup = useAppSelector(selectAzureResourceGroup);
   const azureValidation = useAzureValidation();
   // Registration
   const registrationValidation = useRegistrationValidation();
@@ -438,7 +416,13 @@ const CreateImageWizard = ({ isEdit }: CreateImageWizardProps) => {
               <CustomWizardFooter
                 disableNext={
                   targetEnvironments.length === 0 ||
-                  (isImageMode && !imageSource)
+                  (isImageMode && !imageSource) ||
+                  (targetEnvironments.includes('aws') &&
+                    (isOnPremise ? false : awsValidation.disabledNext)) ||
+                  (targetEnvironments.includes('gcp') &&
+                    gcpValidation.disabledNext) ||
+                  (targetEnvironments.includes('azure') &&
+                    azureValidation.disabledNext)
                 }
                 disableBack={true}
                 isOnPremise={isOnPremise}
@@ -447,79 +431,6 @@ const CreateImageWizard = ({ isEdit }: CreateImageWizardProps) => {
           >
             <ImageOutputStep />
           </WizardStep>
-          <WizardStep
-            name='Target Environment'
-            id='step-target-environment'
-            isHidden={
-              !targetEnvironments.find(
-                (target: string) =>
-                  target === 'aws' || target === 'gcp' || target === 'azure',
-              )
-            }
-            steps={[
-              <WizardStep
-                name='Amazon Web Services'
-                id='wizard-target-aws'
-                key='wizard-target-aws'
-                footer={
-                  <CustomWizardFooter
-                    disableNext={
-                      // we don't need the account id for
-                      // on-prem aws.
-                      isOnPremise
-                        ? false
-                        : awsShareMethod === 'manual'
-                          ? !isAwsAccountIdValid(awsAccountId)
-                          : awsSourceId === undefined
-                    }
-                    isOnPremise={isOnPremise}
-                  />
-                }
-                isHidden={!targetEnvironments.includes('aws')}
-              >
-                <Aws />
-              </WizardStep>,
-              <WizardStep
-                name='Google Cloud'
-                id='wizard-target-gcp'
-                key='wizard-target-gcp'
-                footer={
-                  <CustomWizardFooter
-                    disableNext={
-                      gcpShareMethod === 'withGoogle' &&
-                      !(gcpAccountType === 'domain'
-                        ? isGcpDomainValid(gcpEmail)
-                        : isGcpEmailValid(gcpEmail))
-                    }
-                    isOnPremise={isOnPremise}
-                  />
-                }
-                isHidden={!targetEnvironments.includes('gcp')}
-              >
-                <Gcp />
-              </WizardStep>,
-              <WizardStep
-                name='Azure'
-                id='wizard-target-azure'
-                key='wizard-target-azure'
-                status={azureValidation.disabledNext ? 'error' : 'default'}
-                footer={
-                  <CustomWizardFooter
-                    disableNext={
-                      azureResourceGroup === undefined ||
-                      azureSubscriptionId === undefined ||
-                      azureTenantId === undefined ||
-                      azureValidation.disabledNext
-                    }
-                    isOnPremise={isOnPremise}
-                  />
-                }
-                isHidden={!targetEnvironments.includes('azure')}
-              >
-                <Azure />
-              </WizardStep>,
-            ]}
-          />
           <WizardStep
             name='Groups and users'
             id='wizard-users'

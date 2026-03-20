@@ -24,8 +24,6 @@ export const INSIGHTS_URL =
 export const RHC_URL = 'https://access.redhat.com/articles/rhc';
 export const RELEASE_LIFECYCLE_URL =
   'https://access.redhat.com/support/policy/updates/errata';
-export const AZURE_AUTH_URL =
-  'https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow';
 export const COMPLIANCE_URL = '/insights/compliance/scappolicies';
 export const OSCAP_URL =
   'https://www.open-scap.org/resources/documentation/perform-vulnerability-scan-of-rhel-6-machine/';
