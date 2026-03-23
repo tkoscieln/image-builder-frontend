@@ -88,14 +88,16 @@ const selectGoogleAccount = async (
   value: string = GCP_ACCOUNT,
 ) => {
   const user = userEvent.setup();
-  const googleAccountOption = await screen.findByRole('radio', {
-    name: optionId,
+  const accountTypeToggle = await screen.findByRole('button', {
+    name: /Google account|Select account type/i,
   });
-  await waitFor(() => user.click(googleAccountOption));
+  await waitFor(() => user.click(accountTypeToggle));
+  const option = await screen.findByRole('option', { name: optionId });
+  await waitFor(() => user.click(option));
   const principalInput = await screen.findByRole('textbox', {
     name: /google principal/i,
   });
-  await waitFor(() => user.type(principalInput, value));
+  await user.type(principalInput, value);
 };
 
 let router: RemixRouter | undefined = undefined;

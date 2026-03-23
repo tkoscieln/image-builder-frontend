@@ -140,9 +140,7 @@ export const getTenantGuidInput = async () => {
 export const enterTenantGuid = async () => {
   const user = userEvent.setup();
   const tenantGuid = await getTenantGuidInput();
-  await waitFor(() =>
-    user.type(tenantGuid, 'b8f86d22-4371-46ce-95e7-65c415f3b1e2'),
-  );
+  await user.type(tenantGuid, 'b8f86d22-4371-46ce-95e7-65c415f3b1e2');
 };
 
 export const getSubscriptionIdInput = async () => {
@@ -155,9 +153,7 @@ export const getSubscriptionIdInput = async () => {
 export const enterSubscriptionId = async () => {
   const user = userEvent.setup();
   const subscriptionId = await getSubscriptionIdInput();
-  await waitFor(() =>
-    user.type(subscriptionId, '60631143-a7dc-4d15-988b-ba83f3c99711'),
-  );
+  await user.type(subscriptionId, '60631143-a7dc-4d15-988b-ba83f3c99711');
 };
 
 export const getResourceGroupTextInput = async () => {
@@ -170,7 +166,7 @@ export const getResourceGroupTextInput = async () => {
 export const enterResourceGroup = async () => {
   const user = userEvent.setup();
   const resourceGroup = await getResourceGroupTextInput();
-  await waitFor(() => user.type(resourceGroup, 'testResourceGroup'));
+  await user.type(resourceGroup, 'testResourceGroup');
 };
 
 export const goToRegistrationStep = async () => {
