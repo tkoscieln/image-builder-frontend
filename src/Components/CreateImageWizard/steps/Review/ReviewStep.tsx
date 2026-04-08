@@ -548,7 +548,7 @@ const Review = () => {
           toggleContent={composeExpandable(
             'Ansible Automation Platform',
             'revisit-aap',
-            'wizard-aap',
+            'step-register',
           )}
           onToggle={(_event, isExpandableAap) => onToggleAap(isExpandableAap)}
           isExpanded={isExpandedAap}

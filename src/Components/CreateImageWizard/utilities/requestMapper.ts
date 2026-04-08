@@ -44,6 +44,7 @@ import {
   initialState,
   RegistrationType,
   selectAapCallbackUrl,
+  selectAapEnabled,
   selectAapHostConfigKey,
   selectAapTlsCertificateAuthority,
   selectAapTlsConfirmation,
@@ -621,6 +622,7 @@ export const mapRequestToState = (
       },
     },
     aapRegistration: {
+      enabled: request.customizations.aap_registration !== undefined,
       callbackUrl:
         request.customizations.aap_registration?.ansible_callback_url,
       hostConfigKey: request.customizations.aap_registration?.host_config_key,
@@ -698,6 +700,7 @@ export const mapExportRequestToState = (
     env: initialState.env,
     registration: initialState.registration,
     aapRegistration: {
+      enabled: request.customizations.aap_registration !== undefined,
       callbackUrl:
         request.customizations.aap_registration?.ansible_callback_url,
       hostConfigKey: request.customizations.aap_registration?.host_config_key,
@@ -716,6 +719,11 @@ const getFirstBootScript = (files?: File[]): string => {
 };
 
 const getAapRegistration = (state: RootState): AapRegistration | undefined => {
+  const enabled = selectAapEnabled(state);
+  if (!enabled) {
+    return undefined;
+  }
+
   const callbackUrl = selectAapCallbackUrl(state);
   const hostConfigKey = selectAapHostConfigKey(state);
   const tlsCertificateAuthority = selectAapTlsCertificateAuthority(state);

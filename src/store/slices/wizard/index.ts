@@ -123,6 +123,7 @@ export type wizardState = {
   distribution: Distributions | 'image-mode';
   imageTypes: ImageTypes[];
   aapRegistration: {
+    enabled: boolean;
     callbackUrl: string | undefined;
     hostConfigKey: string | undefined;
     tlsCertificateAuthority: string | undefined;
@@ -234,6 +235,7 @@ export const initialState: wizardState = {
   distribution: RHEL_10,
   imageTypes: [],
   aapRegistration: {
+    enabled: false,
     callbackUrl: undefined,
     hostConfigKey: undefined,
     tlsCertificateAuthority: undefined,
@@ -433,6 +435,10 @@ export const selectSatelliteCaCertificate = (state: RootState) => {
 
 export const selectAapRegistration = (state: RootState) => {
   return state.wizard.aapRegistration;
+};
+
+export const selectAapEnabled = (state: RootState) => {
+  return state.wizard.aapRegistration.enabled;
 };
 
 export const selectAapCallbackUrl = (state: RootState) => {
@@ -774,6 +780,9 @@ export const wizardSlice = createSlice({
     },
     changeSatelliteCaCertificate: (state, action: PayloadAction<string>) => {
       state.registration.satelliteRegistration.caCert = action.payload;
+    },
+    changeAapEnabled: (state, action: PayloadAction<boolean>) => {
+      state.aapRegistration.enabled = action.payload;
     },
     changeAapCallbackUrl: (state, action: PayloadAction<string>) => {
       state.aapRegistration.callbackUrl = action.payload;
@@ -1701,6 +1710,7 @@ export const {
   changeTimezone,
   changeSatelliteRegistrationCommand,
   changeSatelliteCaCertificate,
+  changeAapEnabled,
   changeAapCallbackUrl,
   changeAapHostConfigKey,
   changeAapTlsCertificateAuthority,
