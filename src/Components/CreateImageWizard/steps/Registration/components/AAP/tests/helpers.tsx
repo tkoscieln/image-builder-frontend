@@ -11,7 +11,7 @@ import {
   type WizardStateOverrides,
 } from '@/test/testUtils';
 
-import AAPStep from '../index';
+import AAPStep from '../../../../AAP/index';
 
 export const renderAAPStep = (
   wizardStateOverrides: WizardStateOverrides = {},

@@ -30,7 +30,6 @@ import {
   selectTimezone,
 } from '@/store/slices/wizard';
 
-import AAPStep from './steps/AAP';
 import DetailsStep from './steps/Details';
 import FileSystemStep from './steps/FileSystem';
 import { FileSystemContext } from './steps/FileSystem/components/Row';
@@ -290,7 +289,7 @@ const CreateImageWizard = ({ isEdit }: CreateImageWizardProps) => {
   ]);
 
   let startIndex = 1; // default index
-  const JUMP_TO_REVIEW_STEP = 20;
+  const JUMP_TO_REVIEW_STEP = 19;
 
   if (isEdit) {
     startIndex = JUMP_TO_REVIEW_STEP;
@@ -477,14 +476,18 @@ const CreateImageWizard = ({ isEdit }: CreateImageWizardProps) => {
                 navItem={CustomStatusNavItem}
                 status={
                   wasRegisterVisited
-                    ? registrationValidation.disabledNext
+                    ? registrationValidation.disabledNext ||
+                      aapValidation.disabledNext
                       ? 'error'
                       : 'default'
                     : 'default'
                 }
                 footer={
                   <CustomWizardFooter
-                    disableNext={registrationValidation.disabledNext}
+                    disableNext={
+                      registrationValidation.disabledNext ||
+                      aapValidation.disabledNext
+                    }
                     optional={true}
                     isOnPremise={isOnPremise}
                   />
@@ -736,23 +739,6 @@ const CreateImageWizard = ({ isEdit }: CreateImageWizardProps) => {
                 }
               >
                 <ServicesStep />
-              </WizardStep>,
-              <WizardStep
-                name='Ansible Automation Platform'
-                id='wizard-aap'
-                key='wizard-aap'
-                isHidden={restrictions.aap.shouldHide}
-                navItem={CustomStatusNavItem}
-                status={aapValidation.disabledNext ? 'error' : 'default'}
-                footer={
-                  <CustomWizardFooter
-                    disableNext={aapValidation.disabledNext}
-                    optional={true}
-                    isOnPremise={isOnPremise}
-                  />
-                }
-              >
-                <AAPStep />
               </WizardStep>,
               <WizardStep
                 name='First boot script configuration'

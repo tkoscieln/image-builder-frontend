@@ -4,12 +4,15 @@ import {
   Checkbox,
   DropEvent,
   FileUpload,
+  Form,
   FormGroup,
   FormHelperText,
   HelperText,
   HelperTextItem,
 } from '@patternfly/react-core';
 
+import { AAP_DOCS_URL } from '@/constants';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   changeAapCallbackUrl,
   changeAapHostConfigKey,
@@ -21,12 +24,10 @@ import {
   selectAapTlsConfirmation,
 } from '@/store/slices/wizard';
 
-import { AAP_DOCS_URL } from '../../../../../constants';
-import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
-import ExternalLinkButton from '../../../utilities/ExternalLinkButton';
-import { useAAPValidation } from '../../../utilities/useValidation';
-import { ValidatedInputAndTextArea } from '../../../ValidatedInput';
-import { validateMultipleCertificates } from '../../../validators';
+import ExternalLinkButton from '../../../../utilities/ExternalLinkButton';
+import { useAAPValidation } from '../../../../utilities/useValidation';
+import { ValidatedInputAndTextArea } from '../../../../ValidatedInput';
+import { validateMultipleCertificates } from '../../../../validators';
 
 const AAPRegistration = () => {
   const dispatch = useAppDispatch();
@@ -86,8 +87,12 @@ const AAPRegistration = () => {
   };
 
   return (
-    <>
-      <FormGroup label='Ansible Callback URL' isRequired>
+    <Form className='pf-v6-u-pb-md'>
+      <FormGroup
+        label='Ansible Callback URL'
+        isRequired
+        className='pf-v6-u-w-50'
+      >
         <ValidatedInputAndTextArea
           value={callbackUrl || ''}
           onChange={(_event, value) => handleCallbackUrlChange(value.trim())}
@@ -111,7 +116,7 @@ const AAPRegistration = () => {
         </FormHelperText>
       </FormGroup>
 
-      <FormGroup label='Host Config Key' isRequired>
+      <FormGroup label='Host Config Key' isRequired className='pf-v6-u-w-50'>
         <ValidatedInputAndTextArea
           value={hostConfigKey || ''}
           onChange={(_event, value) => handleHostConfigKeyChange(value.trim())}
@@ -137,7 +142,10 @@ const AAPRegistration = () => {
       </FormGroup>
 
       {shouldShowCaInput && (
-        <FormGroup label='Certificate authority (CA) for Ansible Controller'>
+        <FormGroup
+          label='Certificate authority (CA) for Ansible Controller'
+          className='pf-v6-u-w-50'
+        >
           <FileUpload
             id='aap-certificate-upload'
             type='text'
@@ -214,7 +222,7 @@ const AAPRegistration = () => {
           )}
         </FormGroup>
       )}
-    </>
+    </Form>
   );
 };
 

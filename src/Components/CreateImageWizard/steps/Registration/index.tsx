@@ -16,6 +16,7 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { selectIsOnPremise } from '@/store/slices/env';
 import { changeOrgId } from '@/store/slices/wizard';
 
+import AnsibleAutomationPlatform from './components/AnsibleAutomationPlatform';
 import Registration from './components/Registration';
 
 import { useGetUser } from '../../../../Hooks';
@@ -67,7 +68,12 @@ const RegistrationStep = () => {
             </FormGroup>
           )}
         </Content>
-        <Registration onErrorChange={setShowAlert} />
+        <Content className='pf-v6-u-pb-md'>
+          <Registration onErrorChange={setShowAlert} />
+        </Content>
+        <Content>
+          <AnsibleAutomationPlatform />
+        </Content>
       </Content>
       {showAlert && (
         <Alert title='Activation keys unavailable' variant='danger' isInline>
