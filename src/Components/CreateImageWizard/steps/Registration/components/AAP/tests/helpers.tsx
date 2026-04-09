@@ -11,12 +11,12 @@ import {
   type WizardStateOverrides,
 } from '@/test/testUtils';
 
-import AAPStep from '../../../../AAP/index';
+import AAPRegistration from '../index';
 
 export const renderAAPStep = (
   wizardStateOverrides: WizardStateOverrides = {},
 ) => {
-  return renderWithRedux(<AAPStep />, wizardStateOverrides);
+  return renderWithRedux(<AAPRegistration />, wizardStateOverrides);
 };
 
 export const enterCallbackUrl = async (
