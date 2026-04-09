@@ -123,34 +123,42 @@ const loginCockpit = async (page: Page, user: string, password: string) => {
   ).toBeVisible();
 };
 
-const fillAndSubmitLogin = async (
-  page: Page,
-  user: string,
-  password: string,
-) => {
+const fillAndSubmitLogin = async (page: Page, user: string) => {
   await page.getByRole('textbox', { name: 'Red Hat login' }).fill(user);
   await page.getByRole('button', { name: 'Next' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill(password);
-  await page.getByRole('button', { name: 'Log in' }).click();
 };
 
 const loginConsole = async (page: Page, user: string, password: string) => {
   await closePopupsIfExist(page);
   await page.goto('/insights/image-builder/landing');
 
-  try {
-    await fillAndSubmitLogin(page, user, password);
-  } catch (firstError) {
-    // Cookie consent dismissal can reset the SSO form state.
-    // Re-navigate and retry - consent should already be accepted.
-    try {
-      await page.goto('/insights/image-builder/landing');
-      await fillAndSubmitLogin(page, user, password);
-    } catch {
-      // Retry also failed — throw the original error for clearer debugging
-      throw firstError;
+  await fillAndSubmitLogin(page, user);
+
+  let loginInputAttempts = 0;
+  // Cookie consent dismissal can reset the SSO form state.
+  // Wait if that will be the case
+  while (!(await page.getByText('Red Hat login is required').isVisible())) {
+    await page.waitForTimeout(1000);
+    if (await page.getByText('Password', { exact: true }).isVisible()) {
+      // Password input is visible, we can continue
+      break;
+    }
+    loginInputAttempts++;
+    if (loginInputAttempts > 5) {
+      // Login page had some other issue, throw an error
+      throw new Error(
+        'Login page did not transition to password input after 5 attempts',
+      );
     }
   }
+
+  if (!(await page.getByText('Password', { exact: true }).isVisible())) {
+    // Resubmit login only if the password input is not visible
+    await fillAndSubmitLogin(page, user);
+  }
+
+  await page.getByRole('textbox', { name: 'Password' }).fill(password);
+  await page.getByRole('button', { name: 'Log in' }).click();
 
   const allImagesHeading = page.getByRole('heading', { name: 'All images' });
   await expect(allImagesHeading).toBeVisible({ timeout: 30_000 });
