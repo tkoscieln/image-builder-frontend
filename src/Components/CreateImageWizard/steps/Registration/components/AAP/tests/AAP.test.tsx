@@ -11,19 +11,6 @@ import {
 
 describe('AAP Component', () => {
   describe('Rendering', () => {
-    test('displays step title and description', async () => {
-      renderAAPStep();
-
-      expect(
-        await screen.findByRole('heading', {
-          name: /Ansible Automation Platform/i,
-        }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Configure the image with an AAP callback/i),
-      ).toBeInTheDocument();
-    });
-
     test('displays required input fields', async () => {
       renderAAPStep();
 
@@ -132,6 +119,7 @@ describe('AAP Component', () => {
     test('renders with pre-populated callback URL from state', async () => {
       renderAAPStep({
         aapRegistration: {
+          enabled: true,
           callbackUrl: 'https://existing.controller.com/callback/',
           hostConfigKey: '',
           tlsCertificateAuthority: '',
@@ -148,6 +136,7 @@ describe('AAP Component', () => {
     test('renders with pre-populated host config key from state', async () => {
       renderAAPStep({
         aapRegistration: {
+          enabled: true,
           callbackUrl: '',
           hostConfigKey: 'existing-key',
           tlsCertificateAuthority: '',
@@ -164,6 +153,7 @@ describe('AAP Component', () => {
     test('renders with insecure checkbox checked when skipTlsVerification is true', async () => {
       renderAAPStep({
         aapRegistration: {
+          enabled: true,
           callbackUrl: 'https://controller.example.com/callback/',
           hostConfigKey: '',
           tlsCertificateAuthority: '',
@@ -204,6 +194,7 @@ describe('AAP Component', () => {
     test('updates store when insecure checkbox is toggled', async () => {
       const { store } = renderAAPStep({
         aapRegistration: {
+          enabled: true,
           callbackUrl: 'https://controller.example.com/callback/',
           hostConfigKey: '',
           tlsCertificateAuthority: '',
