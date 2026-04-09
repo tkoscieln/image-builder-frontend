@@ -82,9 +82,7 @@ test('AAP registration boot integration test', async ({ page, cleanup }) => {
   });
 
   await test.step('Select and fill the AAP step', async () => {
-    await frame
-      .getByRole('button', { name: 'Ansible Automation Platform' })
-      .click();
+    await frame.getByRole('checkbox', { name: 'Register to Ansible' }).click();
     await frame
       .getByRole('textbox', { name: 'ansible callback url' })
       .fill(validCallbackUrl);

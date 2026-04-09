@@ -73,10 +73,8 @@ test('Create a blueprint with AAP registration customization', async ({
     await registerLater(frame);
   });
 
-  await test.step('Select and fill the AAP step with valid configuration', async () => {
-    await frame
-      .getByRole('button', { name: 'Ansible Automation Platform' })
-      .click();
+  await test.step('Fill the AAP step with valid configuration', async () => {
+    await frame.getByRole('checkbox', { name: 'Register to Ansible' }).click();
     await frame
       .getByRole('textbox', { name: 'ansible callback url' })
       .fill(validCallbackUrl);
@@ -169,7 +167,7 @@ test('Create a blueprint with AAP registration customization', async ({
 
   await test.step('Edit BP and verify AAP configuration persists', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByLabel('Revisit Ansible Automation Platform step').click();
+    await frame.getByRole('button', { name: 'Register' }).click();
 
     await expect(
       frame.getByRole('textbox', { name: 'ansible callback url' }),
@@ -206,9 +204,7 @@ test('Create a blueprint with AAP registration customization', async ({
   await test.step('Review imported BP', async (step) => {
     step.skip(!isHosted(), 'Importing is not available in the plugin');
     await fillInImageOutputGuest(page);
-    await page
-      .getByRole('button', { name: 'Ansible Automation Platform' })
-      .click();
+    await page.getByRole('button', { name: 'Register' }).click();
     await expect(
       page.getByRole('textbox', { name: 'ansible callback url' }),
     ).toHaveValue(validCallbackUrl);
