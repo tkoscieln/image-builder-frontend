@@ -46,7 +46,6 @@ import {
   selectFscMode,
   selectGcpAccountType,
   selectGcpEmail,
-  selectGcpShareMethod,
   selectGroups,
   selectHostname,
   selectImageSource,
@@ -275,7 +274,6 @@ export const TargetEnvAWSList = () => {
 
 export const TargetEnvGCPList = () => {
   const accountType = useAppSelector(selectGcpAccountType);
-  const sharedMethod = useAppSelector(selectGcpShareMethod);
   const email = useAppSelector(selectGcpEmail);
   return (
     <Content>
@@ -289,49 +287,22 @@ export const TargetEnvGCPList = () => {
           <br />
           <ExpirationWarning />
         </Content>
-        <>
-          {sharedMethod === 'withInsights' ? (
-            <>
-              <Content
-                component={ContentVariants.dt}
-                className='pf-v6-u-min-width'
-              >
-                Shared with
-              </Content>
-              <Content component={ContentVariants.dd}>
-                Red Hat Lightspeed only
-                <br />
-              </Content>
-            </>
-          ) : (
-            <>
-              <Content
-                component={ContentVariants.dt}
-                className='pf-v6-u-min-width'
-              >
-                Account type
-              </Content>
-              <Content component={ContentVariants.dd}>
-                {accountType === 'group'
-                  ? 'Google group'
-                  : accountType === 'serviceAccount'
-                    ? 'Service account'
-                    : accountType === 'user'
-                      ? 'Google account'
-                      : 'Domain'}
-              </Content>
-              <Content
-                component={ContentVariants.dt}
-                className='pf-v6-u-min-width'
-              >
-                {accountType === 'domain' ? 'Domain' : 'Principal'}
-              </Content>
-              <Content component={ContentVariants.dd}>
-                {email || accountType}
-              </Content>
-            </>
-          )}
-        </>
+        <Content component={ContentVariants.dt} className='pf-v6-u-min-width'>
+          Account type
+        </Content>
+        <Content component={ContentVariants.dd}>
+          {accountType === 'group'
+            ? 'Google group'
+            : accountType === 'serviceAccount'
+              ? 'Service account'
+              : accountType === 'user'
+                ? 'Google account'
+                : 'Domain'}
+        </Content>
+        <Content component={ContentVariants.dt} className='pf-v6-u-min-width'>
+          {accountType === 'domain' ? 'Domain' : 'Principal'}
+        </Content>
+        <Content component={ContentVariants.dd}>{email || accountType}</Content>
       </Content>
     </Content>
   );

@@ -12,10 +12,7 @@ import type {
   Units,
 } from '@/Components/CreateImageWizard/steps/FileSystem/fscTypes';
 import type { AwsShareMethod } from '@/Components/CreateImageWizard/steps/ImageOutput/components/Aws';
-import type {
-  GcpAccountType,
-  GcpShareMethod,
-} from '@/Components/CreateImageWizard/steps/ImageOutput/components/Gcp';
+import type { GcpAccountType } from '@/Components/CreateImageWizard/steps/ImageOutput/components/Gcp';
 import {
   GroupWithRepositoryInfo,
   IBPackageWithRepositoryInfo,
@@ -142,7 +139,6 @@ export type wizardState = {
     hyperVGeneration: 'V1' | 'V2';
   };
   gcp: {
-    shareMethod: GcpShareMethod;
     accountType: GcpAccountType;
     email: string;
   };
@@ -252,7 +248,6 @@ export const initialState: wizardState = {
     hyperVGeneration: 'V2',
   },
   gcp: {
-    shareMethod: 'withGoogle',
     accountType: 'user',
     email: '',
   },
@@ -397,10 +392,6 @@ export const selectAzureResourceGroup = (state: RootState) => {
 
 export const selectAzureHyperVGeneration = (state: RootState) => {
   return state.wizard.azure.hyperVGeneration;
-};
-
-export const selectGcpShareMethod = (state: RootState) => {
-  return state.wizard.gcp.shareMethod;
 };
 
 export const selectGcpAccountType = (state: RootState) => {
@@ -738,17 +729,6 @@ export const wizardSlice = createSlice({
       state.azure.subscriptionId = undefined;
       state.azure.resourceGroup = undefined;
     },
-    changeGcpShareMethod: (state, action: PayloadAction<GcpShareMethod>) => {
-      switch (action.payload) {
-        case 'withInsights':
-          state.gcp.accountType = undefined;
-          state.gcp.email = '';
-          break;
-        case 'withGoogle':
-          state.gcp.accountType = 'user';
-      }
-      state.gcp.shareMethod = action.payload;
-    },
     changeGcpAccountType: (state, action: PayloadAction<GcpAccountType>) => {
       state.gcp.accountType = action.payload;
     },
@@ -756,7 +736,6 @@ export const wizardSlice = createSlice({
       state.gcp.email = action.payload;
     },
     reinitializeGcp: (state) => {
-      state.gcp.shareMethod = 'withGoogle';
       state.gcp.accountType = 'user';
       state.gcp.email = '';
     },
@@ -1624,7 +1603,6 @@ export const {
   changeAzureResourceGroup,
   changeAzureHyperVGeneration,
   reinitializeAzure,
-  changeGcpShareMethod,
   changeGcpAccountType,
   changeGcpEmail,
   reinitializeGcp,

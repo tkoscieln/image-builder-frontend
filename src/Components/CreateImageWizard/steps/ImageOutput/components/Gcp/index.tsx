@@ -5,7 +5,6 @@ import {
   FormGroup,
   MenuToggle,
   MenuToggleElement,
-  Radio,
   Select,
   SelectList,
   SelectOption,
@@ -20,13 +19,10 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   changeGcpAccountType,
   changeGcpEmail,
-  changeGcpShareMethod,
   selectGcpAccountType,
   selectGcpEmail,
-  selectGcpShareMethod,
 } from '@/store/slices/wizard';
 
-export type GcpShareMethod = 'withGoogle' | 'withInsights';
 export type GcpAccountType =
   | 'user'
   | 'serviceAccount'
@@ -45,7 +41,6 @@ const Gcp = () => {
   const dispatch = useAppDispatch();
 
   const accountType = useAppSelector(selectGcpAccountType);
-  const shareMethod = useAppSelector(selectGcpShareMethod);
   const gcpEmail = useAppSelector(selectGcpEmail);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -73,75 +68,50 @@ const Gcp = () => {
 
   return (
     <Form className='pf-v6-u-pb-md'>
-      <FormGroup label='Select image sharing' isRequired>
-        <Radio
-          id='share-with-google'
-          label='Share with a Google account'
-          name='gcp-share-method-type'
-          isChecked={shareMethod === 'withGoogle'}
-          onChange={() => {
-            dispatch(changeGcpShareMethod('withGoogle'));
+      <FormGroup label='GCP account type' isRequired>
+        <Select
+          isOpen={isOpen}
+          selected={accountType}
+          onSelect={(_event, value) => {
+            dispatch(changeGcpAccountType(value));
+            setIsOpen(false);
           }}
-          autoFocus
-        />
-        <Radio
-          id='share-with-insights'
-          label={`Share with Red Hat Lightspeed only`}
-          name='gcp-share-method-type'
-          isChecked={shareMethod === 'withInsights'}
-          onChange={() => {
-            dispatch(changeGcpShareMethod('withInsights'));
-          }}
+          onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+          toggle={toggle}
+          shouldFocusToggleOnSelect
+        >
+          <SelectList>
+            {Array.from(GCP_ACCOUNT_TYPE_OPTIONS, ([key, label]) => (
+              <SelectOption key={key} value={key}>
+                {label}
+              </SelectOption>
+            ))}
+          </SelectList>
+        </Select>
+      </FormGroup>
+      <FormGroup
+        label={accountType === 'domain' ? 'Domain' : 'Principal'}
+        isRequired
+      >
+        <ValidatedInput
+          aria-label='google principal'
+          value={gcpEmail || ''}
+          validator={
+            accountType === 'domain' ? isGcpDomainValid : isGcpEmailValid
+          }
+          onChange={(_event, value) => dispatch(changeGcpEmail(value))}
+          helperText={
+            !gcpEmail
+              ? accountType === 'domain'
+                ? 'Domain is required'
+                : 'E-mail address is required'
+              : accountType === 'domain'
+                ? 'Please enter a valid domain'
+                : 'Please enter a valid e-mail address'
+          }
+          handleClear={() => dispatch(changeGcpEmail(''))}
         />
       </FormGroup>
-      {shareMethod === 'withGoogle' && (
-        <>
-          <FormGroup label='GCP account type' isRequired>
-            <Select
-              isOpen={isOpen}
-              selected={accountType}
-              onSelect={(_event, value) => {
-                dispatch(changeGcpAccountType(value));
-                setIsOpen(false);
-              }}
-              onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
-              toggle={toggle}
-              shouldFocusToggleOnSelect
-            >
-              <SelectList>
-                {Array.from(GCP_ACCOUNT_TYPE_OPTIONS, ([key, label]) => (
-                  <SelectOption key={key} value={key}>
-                    {label}
-                  </SelectOption>
-                ))}
-              </SelectList>
-            </Select>
-          </FormGroup>
-          <FormGroup
-            label={accountType === 'domain' ? 'Domain' : 'Principal'}
-            isRequired
-          >
-            <ValidatedInput
-              aria-label='google principal'
-              value={gcpEmail || ''}
-              validator={
-                accountType === 'domain' ? isGcpDomainValid : isGcpEmailValid
-              }
-              onChange={(_event, value) => dispatch(changeGcpEmail(value))}
-              helperText={
-                !gcpEmail
-                  ? accountType === 'domain'
-                    ? 'Domain is required'
-                    : 'E-mail address is required'
-                  : accountType === 'domain'
-                    ? 'Please enter a valid domain'
-                    : 'Please enter a valid e-mail address'
-              }
-              handleClear={() => dispatch(changeGcpEmail(''))}
-            />
-          </FormGroup>
-        </>
-      )}
     </Form>
   );
 };

@@ -32,7 +32,6 @@ import {
   selectFscMode,
   selectGcpAccountType,
   selectGcpEmail,
-  selectGcpShareMethod,
   selectHostname,
   selectImageTypes,
   selectKernel,
@@ -1185,7 +1184,6 @@ export function useGcpValidation(): StepValidation {
   const imageTypes = useAppSelector(selectImageTypes);
   const errors: Record<string, string> = {};
 
-  const gcpShareMethod = useAppSelector(selectGcpShareMethod);
   const gcpAccountType = useAppSelector(selectGcpAccountType);
   const gcpEmail = useAppSelector(selectGcpEmail);
 
@@ -1193,15 +1191,13 @@ export function useGcpValidation(): StepValidation {
     return { errors, disabledNext: false };
   }
 
-  if (gcpShareMethod === 'withGoogle') {
-    if (gcpAccountType === 'domain') {
-      if (!isGcpDomainValid(gcpEmail)) {
-        errors.email = 'Invalid domain';
-      }
-    } else {
-      if (!isGcpEmailValid(gcpEmail)) {
-        errors.email = 'Invalid email';
-      }
+  if (gcpAccountType === 'domain') {
+    if (!isGcpDomainValid(gcpEmail)) {
+      errors.email = 'Invalid domain';
+    }
+  } else {
+    if (!isGcpEmailValid(gcpEmail)) {
+      errors.email = 'Invalid email';
     }
   }
 

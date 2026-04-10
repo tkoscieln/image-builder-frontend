@@ -73,7 +73,6 @@ import {
   selectFscMode,
   selectGcpAccountType,
   selectGcpEmail,
-  selectGcpShareMethod,
   selectGroups,
   selectHostname,
   selectImageSource,
@@ -133,10 +132,7 @@ import {
 } from '../steps/FileSystem/fscTypes';
 import { getConversionFactor } from '../steps/FileSystem/fscUtilities';
 import { AwsShareMethod } from '../steps/ImageOutput/components/Aws';
-import {
-  GcpAccountType,
-  GcpShareMethod,
-} from '../steps/ImageOutput/components/Gcp';
+import { GcpAccountType } from '../steps/ImageOutput/components/Gcp';
 import { PackageRepository } from '../steps/Packages/packagesTypes';
 import {
   convertSchemaToIBCustomRepo,
@@ -333,7 +329,6 @@ const gcpTargetOptions = (options: GcpUploadRequestOptions) => {
     options.share_with_accounts.length === 0
   ) {
     return {
-      shareMethod: 'withInsights' as GcpShareMethod,
       accountType: undefined as GcpAccountType | undefined,
       email: '',
     };
@@ -342,7 +337,6 @@ const gcpTargetOptions = (options: GcpUploadRequestOptions) => {
   const [accountType, email] = options.share_with_accounts[0].split(':');
 
   return {
-    shareMethod: 'withGoogle' as GcpShareMethod,
     accountType: accountType as GcpAccountType,
     email: email || '',
   };
@@ -849,26 +843,22 @@ const getImageOptions = (
         hyper_v_generation: selectAzureHyperVGeneration(state),
       };
     case 'gcp': {
+      const gcpEmail = selectGcpEmail(state);
       let googleAccount: string = '';
-      if (selectGcpShareMethod(state) === 'withGoogle') {
-        const gcpEmail = selectGcpEmail(state);
-        switch (selectGcpAccountType(state)) {
-          case 'user':
-            googleAccount = `user:${gcpEmail}`;
-            break;
-          case 'serviceAccount':
-            googleAccount = `serviceAccount:${gcpEmail}`;
-            break;
-          case 'group':
-            googleAccount = `group:${gcpEmail}`;
-            break;
-          case 'domain':
-            googleAccount = `domain:${gcpEmail}`;
-        }
-        return { share_with_accounts: [googleAccount] };
+      switch (selectGcpAccountType(state)) {
+        case 'user':
+          googleAccount = `user:${gcpEmail}`;
+          break;
+        case 'serviceAccount':
+          googleAccount = `serviceAccount:${gcpEmail}`;
+          break;
+        case 'group':
+          googleAccount = `group:${gcpEmail}`;
+          break;
+        case 'domain':
+          googleAccount = `domain:${gcpEmail}`;
       }
-      // TODO: GCP withInsights is not implemented yet
-      return {};
+      return { share_with_accounts: [googleAccount] };
     }
   }
   return {};
