@@ -10,7 +10,6 @@ import wizardReducer, {
   changeAzureTenantId,
   changeGcpAccountType,
   changeGcpEmail,
-  changeGcpShareMethod,
   initialState,
   reinitializeAws,
   reinitializeAzure,
@@ -206,39 +205,6 @@ describe('target environment reducers', () => {
   });
 
   describe('GCP', () => {
-    describe('changeGcpShareMethod', () => {
-      it('should set to withGoogle and initialize accountType', () => {
-        const result = wizardReducer(
-          initialState,
-          changeGcpShareMethod('withGoogle'),
-        );
-
-        expect(result.gcp.shareMethod).toBe('withGoogle');
-        expect(result.gcp.accountType).toBe('user');
-      });
-
-      it('should set to withInsights and clear accountType and email', () => {
-        const stateWithGcpConfig: wizardState = {
-          ...initialState,
-          gcp: {
-            ...initialState.gcp,
-            shareMethod: 'withGoogle',
-            accountType: 'serviceAccount',
-            email: 'test@example.com',
-          },
-        };
-
-        const result = wizardReducer(
-          stateWithGcpConfig,
-          changeGcpShareMethod('withInsights'),
-        );
-
-        expect(result.gcp.shareMethod).toBe('withInsights');
-        expect(result.gcp.accountType).toBeUndefined();
-        expect(result.gcp.email).toBe('');
-      });
-    });
-
     describe('changeGcpAccountType', () => {
       it('should update account type to user', () => {
         const result = wizardReducer(
@@ -293,7 +259,6 @@ describe('target environment reducers', () => {
         const modifiedState: wizardState = {
           ...initialState,
           gcp: {
-            shareMethod: 'withInsights',
             accountType: 'serviceAccount',
             email: 'sa@example.com',
           },
@@ -301,7 +266,6 @@ describe('target environment reducers', () => {
 
         const result = wizardReducer(modifiedState, reinitializeGcp());
 
-        expect(result.gcp.shareMethod).toBe('withGoogle');
         expect(result.gcp.accountType).toBe('user');
         expect(result.gcp.email).toBe('');
       });

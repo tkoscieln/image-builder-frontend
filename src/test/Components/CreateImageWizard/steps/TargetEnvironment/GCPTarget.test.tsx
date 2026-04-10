@@ -254,25 +254,6 @@ describe('GCP image type request generated correctly', () => {
     expect(receivedRequest).toEqual(expectedRequest);
   });
 
-  test('share image with Red Hat Lightspeed only', async () => {
-    const user = userEvent.setup();
-    await renderCreateMode();
-    await clickGCPTarget();
-    const shareWithInsightOption = await screen.findByRole('radio', {
-      name: /Share with Red Hat Lightspeed only/i,
-    });
-
-    await waitFor(() => user.click(shareWithInsightOption));
-    await goToReviewStep();
-    const receivedRequest = await interceptBlueprintRequest(CREATE_BLUEPRINT);
-    const expectedImageRequest = createGCPCloudImage('gcp', {});
-    const expectedRequest: CreateBlueprintRequest = {
-      ...blueprintRequest,
-      image_requests: [expectedImageRequest],
-    };
-    expect(receivedRequest).toEqual(expectedRequest);
-  });
-
   test('after selecting and deselecting gcp', async () => {
     await renderCreateMode();
     await clickGCPTarget();
