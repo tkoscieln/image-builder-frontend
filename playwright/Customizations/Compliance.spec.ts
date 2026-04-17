@@ -130,15 +130,19 @@ test('Compliance alerts - lint warnings display', async ({ page, cleanup }) => {
     });
   });
 
-  await page.goto('/insights/image-builder/imagewizard?release=rhel9');
+  await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Fill Base settings and image output', async () => {
-    await expect(frame.getByTestId('release_select')).toHaveText(
-      'Red Hat Enterprise Linux (RHEL) 9',
-    );
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
     await fillInDetails(frame, blueprintName);
-    await fillInImageOutput(frame);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
+    await fillInImageOutput(frame, 'qcow2', 'rhel9', 'x86_64');
     await registerLater(frame);
   });
 

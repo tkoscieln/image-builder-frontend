@@ -54,7 +54,7 @@ test('Create a blueprint with Locale customization', async ({
     await registerLater(frame);
   });
 
-  await test.step('Check that the Locale step shows langpacks, but not the Additional packages', async () => {
+  await test.step('Check that the Locale step shows langpacks, but not the Repositories and packages', async () => {
     await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await frame.getByPlaceholder('Select a language').click();
     await frame.getByPlaceholder('Select a language').fill('ru_RU');
@@ -74,7 +74,9 @@ test('Create a blueprint with Locale customization', async ({
     ).toBeVisible();
     await expect(frame.getByText('langpacks-ru')).toBeVisible();
 
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill('langpacks-ru');
