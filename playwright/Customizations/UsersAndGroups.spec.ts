@@ -21,7 +21,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
   verifyExportedBlueprint,
@@ -43,17 +42,27 @@ test('Create a blueprint with Users customization', async ({
 
   await ensureAuthenticated(page);
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to Groups and users step', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Test editable Group ID', async () => {
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     const gidInput = frame.getByRole('textbox', { name: 'Group ID' });
     await expect(gidInput).toBeVisible();
@@ -222,22 +231,13 @@ test('Create a blueprint with Users customization', async ({
     ).toBeVisible();
 
     // Test 4: Empty username with password filled
-    await expect(
-      frame.getByRole('heading', {
-        name: 'Danger alert: Errors found',
-      }),
-    ).toBeHidden();
     await usernameInputs.nth(4).fill('');
     await passwordInputs.nth(4).fill('password123');
-    // Click Next to trigger validation
-    await frame.getByRole('button', { name: 'Next' }).click();
+    // Next and Review image buttons should be disabled due to validation errors
+    await expect(frame.getByRole('button', { name: 'Next' })).toBeDisabled();
     await expect(
-      frame.getByRole('heading', {
-        name: 'Danger alert: Errors found',
-      }),
-    ).toBeVisible();
-    // Go back to Groups and users step to continue with other tests
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+      frame.getByRole('button', { name: 'Review image' }),
+    ).toBeDisabled();
 
     // Test 5: Invalid group name with spaces
     await expect(
@@ -420,7 +420,7 @@ test('Create a blueprint with Users customization', async ({
         .nth(1),
     ).toBeVisible();
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
 
     const advancedSettingsCard = frame
       .locator('.pf-v6-c-card')
@@ -452,13 +452,12 @@ test('Create a blueprint with Users customization', async ({
   });
 
   await test.step('Create and save blueprint', async () => {
-    await fillInDetails(frame, blueprintName);
     await createBlueprint(frame, blueprintName);
   });
 
   await test.step('Edit blueprint and modify users', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     // Modify existing user
     const passwordInputs = frame.getByRole('textbox', {
@@ -478,7 +477,7 @@ test('Create a blueprint with Users customization', async ({
     });
     await newPasswordInputs.last().fill('NewUserPass123');
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -487,7 +486,7 @@ test('Create a blueprint with Users customization', async ({
   await test.step('Verify blueprint was saved correctly', async () => {
     // Navigate back to the blueprint to verify it was saved
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     // Verify all users are present and correct
     const usernameInputs = frame.getByRole('textbox', {
@@ -507,7 +506,7 @@ test('Create a blueprint with Users customization', async ({
     await expect(passwordInputs.nth(2)).toHaveValue('');
     await expect(passwordInputs.nth(3)).toHaveValue('');
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -535,8 +534,9 @@ test('Create a blueprint with Users customization', async ({
   });
 
   await test.step('Verify imported users', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     // Verify users are preserved
     await expect(
@@ -566,16 +566,27 @@ test('Create a blueprint with Groups customization', async ({
 
   await ensureAuthenticated(page);
 
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to Groups and users step', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
   });
 
   await test.step('Add groups', async () => {
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await frame.getByPlaceholder('Set group name').fill('developers');
     await expect(frame.getByPlaceholder('Set group ID')).toBeVisible();
 
@@ -660,7 +671,7 @@ test('Create a blueprint with Groups customization', async ({
   });
 
   await test.step('Verify groups in Review step', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
 
     await expect(frame.getByText('developers')).toBeVisible();
     // TODO: for now we only verify groups that are added to users
@@ -669,21 +680,20 @@ test('Create a blueprint with Groups customization', async ({
     // await expect(frame.getByText('ops')).toBeVisible();
   });
 
-  await test.step('Fill details and create blueprint', async () => {
-    await fillInDetails(frame, blueprintName);
+  await test.step('Create and save blueprint', async () => {
     await createBlueprint(frame, blueprintName);
   });
 
   await test.step('Edit blueprint and verify groups persist', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     const groupNameInputs = frame.getByPlaceholder('Set group name');
     await expect(groupNameInputs.nth(0)).toHaveValue('developers');
     await expect(groupNameInputs.nth(1)).toHaveValue('qa-team');
     await expect(groupNameInputs.nth(2)).toHaveValue('ops');
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -711,8 +721,9 @@ test('Create a blueprint with Groups customization', async ({
   });
 
   await test.step('Review imported groups', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame.getByRole('button', { name: 'Groups and users' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     const groupNameInputs = frame.getByPlaceholder('Set group name');
     await expect(groupNameInputs.nth(0)).toHaveValue('developers');

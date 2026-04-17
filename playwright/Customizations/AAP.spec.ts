@@ -17,7 +17,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
 } from '../helpers/wizardHelpers';
@@ -64,11 +63,21 @@ test('Create a blueprint with AAP registration customization', async ({
   cleanup.add(() => deleteBlueprint(page, blueprintName));
   await ensureAuthenticated(page);
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
@@ -154,11 +163,7 @@ test('Create a blueprint with AAP registration customization', async ({
   });
 
   await test.step('Complete AAP configuration and proceed to review', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -167,7 +172,7 @@ test('Create a blueprint with AAP registration customization', async ({
 
   await test.step('Edit BP and verify AAP configuration persists', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Register' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
 
     await expect(
       frame.getByRole('textbox', { name: 'ansible callback url' }),
@@ -179,7 +184,7 @@ test('Create a blueprint with AAP registration customization', async ({
       frame.getByRole('textbox', { name: 'File upload' }),
     ).toHaveValue(validCertificate);
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -203,8 +208,9 @@ test('Create a blueprint with AAP registration customization', async ({
 
   await test.step('Review imported BP', async (step) => {
     step.skip(!isHosted(), 'Importing is not available in the plugin');
-    await fillInImageOutputGuest(page);
-    await page.getByRole('button', { name: 'Register' }).click();
+    await fillInImageOutput(page);
+    await page.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await page.getByRole('button', { name: 'Base settings' }).click();
     await expect(
       page.getByRole('textbox', { name: 'ansible callback url' }),
     ).toHaveValue(validCallbackUrl);

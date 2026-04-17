@@ -18,7 +18,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
   verifyExportedBlueprint,
@@ -36,16 +35,27 @@ test('Create a blueprint with Timezone customization', async ({
   await ensureAuthenticated(page);
 
   // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Timezone' }).click();
   });
 
   await test.step('Select the Timezone', async () => {
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(
       frame.getByText('Select a timezone and define NTP servers'),
     ).toBeVisible();
@@ -158,11 +168,7 @@ test('Create a blueprint with Timezone customization', async ({
       .getByRole('button', { name: 'Remove 0.cz.pool.ntp.org' })
       .click();
     await expect(frame.getByText('0.cz.pool.ntp.org')).toBeHidden();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -171,7 +177,7 @@ test('Create a blueprint with Timezone customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Timezone' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(frame.getByText('Canada/Saskatchewan')).toBeHidden();
     await expect(
       frame.getByText('Europe/Stockholm', { exact: true }),
@@ -183,7 +189,7 @@ test('Create a blueprint with Timezone customization', async ({
     await expect(frame.getByText('0.nl.pool.ntp.org')).toBeVisible();
     await expect(frame.getByText('0.de.pool.ntp.org')).toBeVisible();
     await expect(frame.getByText('0.cz.pool.ntp.org')).toBeHidden();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -211,8 +217,9 @@ test('Create a blueprint with Timezone customization', async ({
   });
 
   await test.step('Review imported BP', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame.getByRole('button', { name: 'Timezone' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(frame.getByText('Europe/Oslo', { exact: true })).toBeVisible();
     await expect(frame.getByText('0.nl.pool.ntp.org')).toBeVisible();
     await expect(frame.getByText('0.de.pool.ntp.org')).toBeVisible();

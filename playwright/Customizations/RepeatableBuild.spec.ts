@@ -22,7 +22,9 @@ import {
   createBlueprint,
   deleteBlueprint,
   exportBlueprint,
+  fillInDetails,
   importBlueprint,
+  registerLater,
 } from '../helpers/wizardHelpers';
 
 test('Create a blueprint with Repeatable build customization', async ({
@@ -64,15 +66,23 @@ test('Create a blueprint with Repeatable build customization', async ({
     timeout: 30000,
   });
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
-  await enablePreview(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
-    await frame.getByRole('button', { name: 'Back' }).click();
-    await frame.getByRole('radio', { name: 'Register later' }).click();
+    await registerLater(frame);
   });
 
   await test.step('Check non-snapshot repository is disabled', async () => {
@@ -83,7 +93,9 @@ test('Create a blueprint with Repeatable build customization', async ({
     await frame
       .getByRole('textbox', { name: /date picker/i })
       .fill('2025-12-24');
-    await frame.getByRole('button', { name: /Repositories/i }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await expect(frame.getByText(/Loading/i)).toBeHidden();
 
     await frame
@@ -184,12 +196,6 @@ test('Create a blueprint with Repeatable build customization', async ({
     await frame
       .getByRole('textbox', { name: /date picker/i })
       .fill('2026-01-01');
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await frame
-      .getByRole('textbox', { name: 'Blueprint name' })
-      .fill(blueprintName);
     await frame.getByRole('button', { name: 'Review image' }).click();
   });
 

@@ -2,7 +2,7 @@ import path from 'path';
 
 import { expect, type Page } from '@playwright/test';
 
-import { closePopupsIfExist, isHosted, togglePreview } from './helpers';
+import { closePopupsIfExist, isHosted } from './helpers';
 import { ibFrame } from './navHelpers';
 
 /**
@@ -145,10 +145,12 @@ const loginConsole = async (page: Page, user: string, password: string) => {
     }
     loginInputAttempts++;
     if (loginInputAttempts > 5) {
-      // Login page had some other issue, throw an error
-      throw new Error(
+      // this just helps us for test debugging
+      // eslint-disable-next-line no-console
+      console.warn(
         'Login page did not transition to password input after 5 attempts',
       );
+      break;
     }
   }
 
@@ -162,8 +164,6 @@ const loginConsole = async (page: Page, user: string, password: string) => {
 
   const allImagesHeading = page.getByRole('heading', { name: 'All images' });
   await expect(allImagesHeading).toBeVisible({ timeout: 30_000 });
-  await togglePreview(page);
-  await expect(allImagesHeading).toBeVisible();
 };
 
 export const storeStorageStateAndToken = async (page: Page) => {

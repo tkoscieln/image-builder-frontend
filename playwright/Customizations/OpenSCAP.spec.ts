@@ -7,14 +7,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { test } from '../fixtures/cleanup';
 import { isHosted } from '../helpers/helpers';
 import { ensureAuthenticated } from '../helpers/login';
-import { ibFrame, navigateToLandingPage } from '../helpers/navHelpers';
+import {
+  fillInImageOutput,
+  ibFrame,
+  navigateToLandingPage,
+} from '../helpers/navHelpers';
 import { selectDistro } from '../helpers/targetChooser';
 import {
   createBlueprint,
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
 } from '../helpers/wizardHelpers';
@@ -31,22 +34,28 @@ test('Create a blueprint with OpenSCAP customization', async ({
 
   await ensureAuthenticated(page);
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('WSL + Installer shows WSL is not supported', async () => {
-    // Back to Image output and add Installer
+  await test.step('Open Wizard', async () => {
     await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('WSL + Installer shows WSL is not supported', async () => {
     await selectDistro(frame, 'rhel9');
     await frame
       .getByRole('checkbox', { name: 'Windows Subsystem for Linux' })
       .click();
     await frame.getByRole('checkbox', { name: 'Bare metal installer' }).click();
-    await frame.getByRole('button', { name: 'Next' }).click();
     await registerLater(frame);
 
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
     await expect(
       frame.getByText('WSL: customization is not supported'),
     ).toBeVisible();
@@ -73,11 +82,13 @@ test('Create a blueprint with OpenSCAP customization', async ({
   await test.step('Verify Packages show no OpenSCAP additions', async () => {
     // NOTE: fsc check was removed since we now hide steps when
     // none of the image types support the customization
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
   });
 
   await test.step('Select OpenSCAP profile, and check if dependencies are preselected', async () => {
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: 'Use a default OpenSCAP profile' })
       .check();
@@ -88,7 +99,9 @@ test('Create a blueprint with OpenSCAP customization', async ({
         name: 'CIS Red Hat Enterprise Linux 9 Benchmark for Level 1 - Server',
       })
       .click();
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await expect(frame.getByRole('gridcell', { name: 'aide' })).toBeVisible();
     await expect(frame.getByRole('gridcell', { name: 'chrony' })).toBeVisible();
     await expect(frame.getByRole('gridcell', { name: 'cronie' })).toBeVisible();
@@ -108,7 +121,7 @@ test('Create a blueprint with OpenSCAP customization', async ({
     await expect(
       frame.getByRole('gridcell', { name: 'systemd-journal-remote' }),
     ).toBeVisible();
-    await frame.getByRole('button', { name: 'Systemd services' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(frame.getByText('11 Added by OpenSCAP')).toBeVisible();
     await frame.getByPlaceholder('Add masked service').fill('nftables');
     await frame.getByPlaceholder('Add masked service').press('Enter');
@@ -122,11 +135,7 @@ test('Create a blueprint with OpenSCAP customization', async ({
     await expect(frame.getByText('autofs')).toBeVisible();
     await expect(frame.getByText('bluetooth')).toBeVisible();
     await expect(frame.getByText('nftables')).toBeVisible();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -135,7 +144,7 @@ test('Create a blueprint with OpenSCAP customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame.getByRole('textbox', { name: 'Type to filter' }).click();
     await expect(
       frame.getByText(
@@ -150,12 +159,16 @@ test('Create a blueprint with OpenSCAP customization', async ({
       })
       .click();
 
-    await frame.getByRole('button', { name: 'Kernel' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
-    await expect(frame.getByText('2 Added by OpenSCAP')).toBeVisible();
+    await expect(
+      frame.getByText('2 Added by OpenSCAP', { exact: true }),
+    ).toBeVisible();
     await expect(frame.getByText('audit_backlog_limit=8192')).toBeVisible();
     await expect(frame.getByText('audit=1')).toBeVisible();
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await expect(frame.getByRole('gridcell', { name: 'aide' })).toBeVisible();
     await expect(
       frame.getByRole('gridcell', { name: 'audit-libs' }),
@@ -175,7 +188,7 @@ test('Create a blueprint with OpenSCAP customization', async ({
       frame.getByRole('gridcell', { name: 'nftables' }),
     ).toBeVisible();
     await expect(frame.getByRole('gridcell', { name: 'sudo' })).toBeVisible();
-    await frame.getByRole('button', { name: 'Systemd services' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(frame.getByText('12 Added by OpenSCAP')).toBeVisible();
     await frame.getByPlaceholder('Add masked service').fill('nftables');
     await frame.getByPlaceholder('Add masked service').press('Enter');
@@ -189,7 +202,7 @@ test('Create a blueprint with OpenSCAP customization', async ({
     await expect(frame.getByText('autofs')).toBeVisible();
     await expect(frame.getByText('bluetooth')).toBeVisible();
     await expect(frame.getByText('nftables')).toBeVisible();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -205,19 +218,18 @@ test('Create a blueprint with OpenSCAP customization', async ({
   });
 
   await test.step('Import BP', async () => {
-    await importBlueprint(page, exportedBP);
+    await importBlueprint(frame, exportedBP);
   });
 
   await test.step('Review imported BP', async () => {
-    await fillInImageOutputGuest(page);
-    await page.getByRole('button', { name: 'Security' }).nth(1).click();
-    await frame.getByRole('textbox', { name: 'Type to filter' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Base settings' }).click();
+    await frame.getByRole('button', { name: 'View details' }).nth(2).click();
     await expect(
-      frame.getByText(
-        'CIS Red Hat Enterprise Linux 9 Benchmark for Level 2 - Server',
-      ),
+      frame.getByText('Red Hat Enterprise Linux 9 CIS'),
     ).toBeVisible();
 
-    await page.getByRole('button', { name: 'Cancel' }).click();
+    await frame.getByRole('button', { name: 'Cancel' }).click();
   });
 });

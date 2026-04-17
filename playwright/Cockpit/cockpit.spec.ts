@@ -91,14 +91,14 @@ test('Cockpit AWS cloud upload', async ({ page, cleanup }) => {
   await test.step('Cockpit cloud upload', async () => {
     await frame.getByTestId('blueprints-create-button').click();
     await expect(
-      frame.getByRole('heading', { name: 'Image output' }),
+      frame.getByRole('heading', { name: 'Base settings' }),
     ).toBeVisible();
     await frame.getByRole('checkbox', { name: /amazon web services/i }).click();
-    await frame.getByRole('button', { name: 'Next', exact: true }).click();
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame.getByRole('button', { name: 'Back', exact: true }).click();
 
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await expect(
       frame.getByRole('heading', { name: 'Image details' }),
     ).toBeVisible();
@@ -108,7 +108,7 @@ test('Cockpit AWS cloud upload', async ({ page, cleanup }) => {
     await expect(
       frame.getByRole('textbox', { name: 'blueprint name' }),
     ).toHaveValue(blueprintName);
-    await frame.getByRole('button', { name: 'Next', exact: true }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
 
     await frame.getByRole('button', { name: 'Create blueprint' }).click();
     await frame.getByTestId('close-button-saveandbuild-modal').click();

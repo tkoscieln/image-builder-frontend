@@ -27,14 +27,22 @@ test('Navigate with valid blueprint_id URL parameter', async ({
   cleanup.add(() => deleteBlueprint(page, blueprintName));
 
   await ensureAuthenticated(page);
-  await navigateToLandingPage(page);
+
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
   await test.step('Create a blueprint', async () => {
+    await fillInDetails(frame, blueprintName);
     await fillInImageOutput(frame);
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await createBlueprint(frame, blueprintName);
   });
 

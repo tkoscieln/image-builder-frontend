@@ -40,10 +40,8 @@ export const createBlueprint = async (
 };
 
 /**
- * Fill in the "Details" step in the wizard
- * This method assumes that the "Details" step is ENABLED!
- * After filling the step, it will click the "Next" button
- * Description defaults to "Testing blueprint"
+ * Fill in name and description of the blueprint in the Base settings step.
+ * It starts with navigating to the Base settings step.
  * @param page - the page object
  * @param blueprintName - the name of the blueprint to create
  */
@@ -51,14 +49,13 @@ export const fillInDetails = async (
   page: Page | FrameLocator,
   blueprintName: string,
 ) => {
-  await page.getByRole('listitem').filter({ hasText: 'Details' }).click();
+  await page.getByRole('button', { name: 'Base settings' }).click();
   await page
     .getByRole('textbox', { name: 'Blueprint name' })
     .fill(blueprintName);
   await page
     .getByRole('textbox', { name: 'Blueprint description' })
     .fill('Testing blueprint');
-  await page.getByRole('button', { name: 'Next' }).click();
 };
 
 /**
@@ -67,7 +64,6 @@ export const fillInDetails = async (
  */
 export const registerLater = async (page: Page | FrameLocator) => {
   if (isHosted() || isRhel(getHostDistroKey())) {
-    await page.getByRole('button', { name: 'Register' }).click();
     await page.getByRole('radio', { name: 'Register later' }).click();
   }
 };
@@ -134,15 +130,6 @@ export const registerWithActivationKey = async (page: Page | FrameLocator) => {
       await rhcSwitch.click();
     }
   }
-};
-
-/**
- * Fill in the image output step in the wizard by selecting the Guest Image
- * @param page - the page object
- */
-export const fillInImageOutputGuest = async (page: Page | FrameLocator) => {
-  await page.getByRole('checkbox', { name: 'Virtualization' }).click();
-  await page.getByRole('button', { name: 'Next' }).click();
 };
 
 /**
@@ -288,6 +275,8 @@ export const importBlueprint = async (
   ).not.toBeEmpty();
   // Wait for the blueprint to finish parsing (including any async repo import API
   // calls) before clicking. The button is disabled until importedBlueprint is set.
+  // The import modal uses "Review and finish" (ImportBlueprintModal.tsx),
+  // not "Review image" like the v3 wizard.
   const reviewBtn = page.getByRole('button', { name: /review and finish/i });
   await expect(reviewBtn).toBeEnabled();
   await reviewBtn.click();

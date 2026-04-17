@@ -27,7 +27,6 @@ export const fillInImageOutput = async (
   distro?: 'rhel10' | 'rhel9' | 'rhel8',
   arch?: 'x86_64' | 'aarch64',
 ) => {
-  await page.getByRole('button', { name: 'Create image blueprint' }).click();
   if (!isHosted()) {
     // wait until the distro and architecture aligns with the host
     await expect(page.getByTestId('release_select')).toHaveText(
@@ -46,7 +45,6 @@ export const fillInImageOutput = async (
   } else {
     await page.getByRole('checkbox', { name: 'Virtualization' }).click();
   }
-  await page.getByRole('button', { name: 'Next' }).click();
 };
 
 /**

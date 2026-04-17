@@ -18,7 +18,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
   verifyExportedBlueprint,
@@ -35,17 +34,27 @@ test('Create a blueprint with Firewall customization', async ({
 
   await ensureAuthenticated(page);
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Select and correctly fill the ports in Firewall step', async () => {
-    await frame.getByRole('button', { name: 'Firewall' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(frame.getByRole('button', { name: 'Next' })).toBeEnabled();
     await frame.getByPlaceholder('Enter port (e.g., 8080:tcp)').fill('80:tcp');
     await page.keyboard.press('Enter');
@@ -135,12 +144,8 @@ test('Create a blueprint with Firewall customization', async ({
     ).toBeVisible();
   });
 
-  await test.step('Fill the BP details', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
-  });
-
   await test.step('Create BP and verify firewall payload', async () => {
+    await frame.getByRole('button', { name: 'Review image' }).click();
     if (!isHosted()) {
       await createBlueprint(frame, blueprintName);
       return;
@@ -166,7 +171,7 @@ test('Create a blueprint with Firewall customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Firewall' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     await frame.getByPlaceholder('Enter port (e.g., 8080:tcp)').fill('90:tcp');
     await page.keyboard.press('Enter');
@@ -189,7 +194,7 @@ test('Create a blueprint with Firewall customization', async ({
     await expect(frame.getByText('telnet.socket')).toBeHidden();
     await expect(frame.getByText('cloud-init')).toBeHidden();
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -217,8 +222,9 @@ test('Create a blueprint with Firewall customization', async ({
   });
 
   await test.step('Review imported BP', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame.getByRole('button', { name: 'Firewall' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     await expect(frame.getByText('90:tcp')).toBeVisible();
     await expect(frame.getByText('x').nth(0)).toBeVisible();
@@ -242,13 +248,28 @@ test('Firewall fields collapse chips with show less / more', async ({
   cleanup.add(() => deleteBlueprint(page, blueprintName));
 
   await ensureAuthenticated(page);
-  await navigateToLandingPage(page);
+
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to Firewall step', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Firewall' }).click();
+  });
+
+  await test.step('Open Advanced settings', async () => {
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
   });
 
   await test.step('Ports: shows all chips when 4 or fewer', async () => {
@@ -313,7 +334,7 @@ test('Firewall fields collapse chips with show less / more', async ({
       await page.keyboard.press('Enter');
     }
 
-    await expect(frame.getByText('ssh')).toBeVisible();
+    await expect(frame.getByText('ssh', { exact: true })).toBeVisible();
     await expect(frame.getByText('http', { exact: true })).toBeVisible();
     await expect(frame.getByText('https')).toBeVisible();
     await expect(frame.getByText('dhcp')).toBeVisible();

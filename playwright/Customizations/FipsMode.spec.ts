@@ -39,16 +39,26 @@ test('FIPS switch toggles and persists through save', async ({
 
   await ensureAuthenticated(page);
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to Security step and toggle FIPS on', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
+  });
 
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
-
+  await test.step('Toggle FIPS and select OpenSCAP profile', async () => {
     const fipsSwitch = frame.locator('label[for="fips-enabled-switch"]');
     await expect(fipsSwitch).toBeVisible();
     await fipsSwitch.click();
@@ -73,18 +83,14 @@ test('FIPS switch toggles and persists through save', async ({
     await expect(fipsInput).toBeChecked();
   });
 
-  await test.step('Navigate to Kernel step and verify FIPS alert', async () => {
-    await frame.getByRole('button', { name: 'Kernel' }).click();
+  await test.step('Navigate to Advanced settings and verify FIPS alert on Kernel', async () => {
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await expect(
       frame.getByText(
         'Kernel will be configured to use FIPS, no additional configuration needed.',
       ),
     ).toBeVisible();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -93,7 +99,7 @@ test('FIPS switch toggles and persists through save', async ({
 
   await test.step('Edit BP and verify FIPS remained enabled', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     const fipsInput = frame.locator('#fips-enabled-switch');
     await expect(fipsInput).toBeChecked();
   });

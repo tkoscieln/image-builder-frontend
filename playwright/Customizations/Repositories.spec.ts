@@ -55,34 +55,45 @@ test('Create blueprint with repository and test edit mode removal', async ({
   cleanup.add(() => deleteBlueprint(page, blueprintName));
   cleanup.add(() => deleteRepositoryViaApi(page, repositoryUuid));
 
-  await navigateToLandingPage(page);
-  const frame = ibFrame(page);
-
-  await test.step('Fill in image output', async () => {
-    await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
   });
 
-  await test.step('Register later', async () => {
+  const frame = ibFrame(page);
+
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill in image output and registration', async () => {
+    await fillInImageOutput(frame, 'qcow2');
     await registerLater(frame);
   });
 
   await test.step('Select the repository', async () => {
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Filter repositories' })
       .fill(repositoryName);
     await frame.getByRole('option', { name: repositoryName }).click();
   });
 
-  await test.step('Fill blueprint details and create', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
+  await test.step('Review and create blueprint', async () => {
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await createBlueprint(frame, blueprintName);
   });
 
   await test.step('Edit blueprint and verify repository is displayed', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
 
     await expect(
       frame.getByRole('gridcell', { name: repositoryName }),
@@ -113,7 +124,7 @@ test('Create blueprint with repository and test edit mode removal', async ({
   });
 
   await test.step('Save changes and verify repository is removed', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
