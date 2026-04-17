@@ -16,15 +16,22 @@ test('shows on-premise wildcard search instructions when running on-premise', as
   test.skip(isHosted(), 'Skip on-premise specific tests on hosted');
 
   await ensureAuthenticated(page);
-  await navigateToLandingPage(page);
+
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
+
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
 
   await test.step('Navigate to packages step', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
-    // Navigate to packages step
     await frame
-      .getByRole('button', { name: 'Additional packages', exact: false })
+      .getByRole('button', { name: 'Repositories and packages' })
       .click();
   });
 

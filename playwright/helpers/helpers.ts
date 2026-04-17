@@ -12,7 +12,7 @@ import {
 export const togglePreview = async (page: Page) => {
   const toggleSwitch = page.locator('#preview-toggle');
 
-  if (await toggleSwitch.isChecked()) {
+  if (!(await toggleSwitch.isChecked())) {
     await toggleSwitch.click();
   }
 
@@ -21,7 +21,10 @@ export const togglePreview = async (page: Page) => {
     await turnOnButton.click();
   }
 
-  await expect(toggleSwitch).not.toBeChecked();
+  await expect(toggleSwitch).toBeChecked();
+
+  // TODO: Temporary fix to wait for the preview to be turned on and the modal to load
+  await page.waitForTimeout(3000);
 };
 
 export const enablePreview = async (page: Page) => {

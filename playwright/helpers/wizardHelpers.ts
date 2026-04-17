@@ -40,10 +40,8 @@ export const createBlueprint = async (
 };
 
 /**
- * Fill in the "Details" step in the wizard
- * This method assumes that the "Details" step is ENABLED!
- * After filling the step, it will click the "Next" button
- * Description defaults to "Testing blueprint"
+ * Fill in name and description of the blueprint in the Base settings step.
+ * It starts with navigating to the Base settings step.
  * @param page - the page object
  * @param blueprintName - the name of the blueprint to create
  */
@@ -51,14 +49,13 @@ export const fillInDetails = async (
   page: Page | FrameLocator,
   blueprintName: string,
 ) => {
-  await page.getByRole('listitem').filter({ hasText: 'Details' }).click();
+  await page.getByRole('button', { name: 'Base settings' }).click();
   await page
     .getByRole('textbox', { name: 'Blueprint name' })
     .fill(blueprintName);
   await page
     .getByRole('textbox', { name: 'Blueprint description' })
     .fill('Testing blueprint');
-  await page.getByRole('button', { name: 'Next' }).click();
 };
 
 /**
@@ -67,7 +64,6 @@ export const fillInDetails = async (
  */
 export const registerLater = async (page: Page | FrameLocator) => {
   if (isHosted() || isRhel(getHostDistroKey())) {
-    await page.getByRole('button', { name: 'Register' }).click();
     await page.getByRole('radio', { name: 'Register later' }).click();
   }
 };

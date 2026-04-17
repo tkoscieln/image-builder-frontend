@@ -18,7 +18,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
   verifyExportedBlueprint,
@@ -36,16 +35,27 @@ test('Create a blueprint with Locale customization', async ({
   await ensureAuthenticated(page);
 
   // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Check that the Locale step shows langpacks, but not the Additional packages', async () => {
-    await frame.getByRole('button', { name: 'Locale' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await frame.getByPlaceholder('Select a language').click();
     await frame.getByPlaceholder('Select a language').fill('ru_RU');
     await frame
@@ -72,7 +82,7 @@ test('Create a blueprint with Locale customization', async ({
   });
 
   await test.step('Select and fill the Locale step', async () => {
-    await frame.getByRole('button', { name: 'Locale' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await frame.getByPlaceholder('Select a language').fill('en_US');
     await frame
       .getByRole('option', {
@@ -114,11 +124,7 @@ test('Create a blueprint with Locale customization', async ({
       .getByText('Resolving packages for your preferred locale…')
       .waitFor({ state: 'hidden', timeout: 60_000 });
     await expect(frame.getByText('langpacks-en')).toBeVisible();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP and verify locale langpacks in request', async () => {
@@ -157,7 +163,7 @@ test('Create a blueprint with Locale customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Locale' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     const keyboardGroup = frame.getByRole('group', { name: 'Keyboard' });
     await expect(
       frame.getByText('English - United States (en_US.UTF-8)'),
@@ -179,7 +185,7 @@ test('Create a blueprint with Locale customization', async ({
     ).toBeVisible();
     await keyboardGroup.getByRole('button', { name: 'amiga-de' }).click();
     await frame.getByRole('menuitem', { name: 'ANSI-dvorak' }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -207,8 +213,9 @@ test('Create a blueprint with Locale customization', async ({
   });
 
   await test.step('Review imported BP', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame.getByRole('button', { name: 'Locale' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     const keyboardGroup = frame.getByRole('group', { name: 'Keyboard' });
     await expect(
       frame.getByText('English - United States (en_US.UTF-8)'),

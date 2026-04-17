@@ -21,17 +21,28 @@ test('Basic create/build/delete test', async ({ page, cleanup }) => {
   cleanup.add(() => deleteBlueprint(page, blueprintName));
 
   await ensureAuthenticated(page);
-  await navigateToLandingPage(page);
-  const frame = ibFrame(page);
 
-  await test.step('Navigate to review step in Wizard', async () => {
-    await fillInImageOutput(frame);
-    await registerLater(frame);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
   });
 
-  await test.step('Fill in BP details', async () => {
+  const frame = ibFrame(page);
+
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
     await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
+    await fillInImageOutput(frame);
+    await registerLater(frame);
+  });
+
+  await test.step('Review image', async () => {
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -76,17 +87,28 @@ test('Basic delete BP tests', async ({ page }) => {
   const blueprintName = uuidv4();
 
   await ensureAuthenticated(page);
-  await navigateToLandingPage(page);
-  const frame = ibFrame(page);
 
-  await test.step('Navigate to review step in Wizard', async () => {
-    await fillInImageOutput(frame);
-    await registerLater(frame);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
   });
 
-  await test.step('Fill in BP details', async () => {
+  const frame = ibFrame(page);
+
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
     await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
+    await fillInImageOutput(frame);
+    await registerLater(frame);
+  });
+
+  await test.step('Review image', async () => {
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {

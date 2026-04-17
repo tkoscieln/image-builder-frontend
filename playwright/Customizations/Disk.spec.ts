@@ -18,7 +18,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
   verifyExportedBlueprint,
@@ -35,19 +34,27 @@ test('Create a blueprint with Disk customization', async ({
 
   await ensureAuthenticated(page);
 
-  // Login, navigate to IB and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Check basic structure of advanced partitioning', async () => {
-    await frame
-      .getByRole('button', { name: 'File system configuration' })
-      .click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await frame
       .getByRole('radio', { name: 'Advanced disk partitioning' })
       .click();
@@ -120,9 +127,8 @@ test('Create a blueprint with Disk customization', async ({
     await frame.getByRole('option', { name: 'KiB' }).click();
   });
 
-  await test.step('Fill the BP details', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
+  await test.step('Review image', async () => {
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -131,9 +137,7 @@ test('Create a blueprint with Disk customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame
-      .getByRole('button', { name: 'File system configuration' })
-      .click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     const removeRootButton = frame
       .getByRole('row')
@@ -170,7 +174,7 @@ test('Create a blueprint with Disk customization', async ({
     await secondRow.getByRole('button', { name: 'xfs' }).click();
     await frame.getByRole('option', { name: 'ext4' }).click();
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -198,10 +202,9 @@ test('Create a blueprint with Disk customization', async ({
   });
 
   await test.step('Review imported BP', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame
-      .getByRole('button', { name: 'File system configuration' })
-      .click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     const removeRootButton = frame
       .getByRole('row')
