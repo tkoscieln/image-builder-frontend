@@ -18,7 +18,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
   registerLater,
   verifyExportedBlueprint,
@@ -36,16 +35,27 @@ test('Create a blueprint with Systemd customization', async ({
   await ensureAuthenticated(page);
 
   // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Systemd services' }).click();
   });
 
   await test.step('Enabled services: shows all chips when 8 or fewer', async () => {
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     const enabledInput = frame.getByPlaceholder('Add enabled service');
     for (const service of [
       'sshd.service',
@@ -246,9 +256,8 @@ test('Create a blueprint with Systemd customization', async ({
     ).toBeVisible();
   });
 
-  await test.step('Fill the BP details', async () => {
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
+  await test.step('Navigate to review', async () => {
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -257,7 +266,7 @@ test('Create a blueprint with Systemd customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Systemd services' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     await frame
       .getByPlaceholder('Add disabled service')
@@ -286,7 +295,7 @@ test('Create a blueprint with Systemd customization', async ({
     await expect(frame.getByText('systemd-dis.service')).toBeHidden();
     await expect(frame.getByText('systemd-m.service')).toBeHidden();
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -314,8 +323,9 @@ test('Create a blueprint with Systemd customization', async ({
   });
 
   await test.step('Review imported BP', async () => {
-    await fillInImageOutputGuest(frame);
-    await frame.getByRole('button', { name: 'Systemd services' }).click();
+    await fillInImageOutput(frame);
+    await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
     await expect(frame.getByText('enabled-service')).toBeVisible();
     await expect(frame.getByText('disabled-service')).toBeVisible();

@@ -28,12 +28,16 @@ test('Create a blueprint with Azure target', async ({ page, cleanup }) => {
   const frame = ibFrame(page);
 
   await test.step('Select Azure target and verify field behavior', async () => {
-    await page.getByRole('button', { name: 'Create image blueprint' }).click();
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+
+    await fillInDetails(frame, blueprintName);
 
     await selectTarget(frame, 'azure');
 
-    const nextButton = frame.getByRole('button', { name: 'Next' });
-    await expect(nextButton).toBeDisabled();
+    const reviewImageButton = frame.getByRole('button', {
+      name: 'Review image',
+    });
+    await expect(reviewImageButton).toBeDisabled();
 
     const tenantInput = frame.getByRole('textbox', {
       name: /azure tenant guid/i,
@@ -58,14 +62,12 @@ test('Create a blueprint with Azure target', async ({ page, cleanup }) => {
     await subscriptionInput.fill(SUBSCRIPTION_ID);
     await resourceGroupInput.fill(RESOURCE_GROUP);
 
-    await expect(nextButton).toBeEnabled();
+    await expect(reviewImageButton).toBeEnabled();
   });
 
   await test.step('Navigate to review and create blueprint', async () => {
-    await frame.getByRole('button', { name: 'Next' }).click();
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Verify Azure details on review step', async () => {
@@ -81,10 +83,7 @@ test('Create a blueprint with Azure target', async ({ page, cleanup }) => {
 
   await test.step('Edit blueprint and verify Azure config persisted', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame
-      .getByLabel('Wizard steps')
-      .getByRole('button', { name: 'Image output' })
-      .click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
 
     const tenantInput = frame.getByRole('textbox', {
       name: /azure tenant guid/i,
@@ -113,8 +112,7 @@ test('Create a blueprint with Azure target', async ({ page, cleanup }) => {
       frame.getByRole('button', { name: /Generation 1/i }),
     ).toBeVisible();
 
-    await frame.getByRole('button', { name: 'Next', exact: true }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -122,17 +120,13 @@ test('Create a blueprint with Azure target', async ({ page, cleanup }) => {
 
   await test.step('Re-edit and verify V1 persisted', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame
-      .getByLabel('Wizard steps')
-      .getByRole('button', { name: 'Image output' })
-      .click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
 
     await expect(
       frame.getByRole('button', { name: /Generation 1/i }),
     ).toBeVisible();
 
-    await frame.getByRole('button', { name: 'Next', exact: true }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();
@@ -153,7 +147,9 @@ test('Deselecting Azure removes its config from the blueprint', async ({
   const frame = ibFrame(page);
 
   await test.step('Select Azure and fill in fields', async () => {
-    await page.getByRole('button', { name: 'Create image blueprint' }).click();
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+
+    await fillInDetails(frame, blueprintName);
 
     await selectTarget(frame, 'azure');
 
@@ -166,15 +162,10 @@ test('Deselecting Azure removes its config from the blueprint', async ({
     await frame
       .getByRole('textbox', { name: /resource group/i })
       .fill(RESOURCE_GROUP);
-
-    await frame.getByRole('button', { name: 'Next' }).click();
   });
 
   await test.step('Go back and deselect Azure', async () => {
-    await frame
-      .getByLabel('Wizard steps')
-      .getByRole('button', { name: 'Image output' })
-      .click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
 
     await selectTarget(frame, 'azure');
 
@@ -185,13 +176,11 @@ test('Deselecting Azure removes its config from the blueprint', async ({
 
   await test.step('Select Guest Image and continue', async () => {
     await frame.getByRole('checkbox', { name: /Virtualization/i }).click();
-    await frame.getByRole('button', { name: 'Next' }).click();
   });
 
   await test.step('Navigate to review and verify no Azure details', async () => {
     await registerLater(frame);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
 
     // Azure-specific details should not be present on the review step
     await expect(frame.getByText(TENANT_GUID)).toBeHidden();

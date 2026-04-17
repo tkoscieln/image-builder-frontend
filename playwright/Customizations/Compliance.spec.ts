@@ -48,18 +48,26 @@ test('Create a blueprint with Compliance policy selected', async ({
 
   await login(page, true);
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Select Compliance and choose a mock policy', async () => {
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
-
     await frame
       .getByRole('radio', { name: 'Use a custom Compliance policy' })
       .check();
@@ -79,11 +87,7 @@ test('Create a blueprint with Compliance policy selected', async ({
       frame.getByRole('button', { name: 'placehollder' }),
     ).toBeVisible();
 
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -92,7 +96,7 @@ test('Create a blueprint with Compliance policy selected', async ({
 
   await test.step('Edit BP and verify Compliance selection persisted', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Security' }).nth(1).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
 
     await expect(
       frame.getByRole('radio', { name: 'Use a custom compliance policy' }),
@@ -129,20 +133,16 @@ test('Compliance alerts - lint warnings display', async ({ page, cleanup }) => {
   await page.goto('/insights/image-builder/imagewizard?release=rhel9');
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Fill Base settings and image output', async () => {
     await expect(frame.getByTestId('release_select')).toHaveText(
       'Red Hat Enterprise Linux (RHEL) 9',
     );
-    await frame.getByRole('checkbox', { name: 'Virtualization' }).click();
-    await frame.getByRole('button', { name: 'Next' }).click();
+    await fillInDetails(frame, blueprintName);
+    await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Select and fill the Compliance step', async () => {
-    await frame
-      .getByLabel('Wizard steps')
-      .getByRole('button', { name: 'Security' })
-      .click();
     await frame
       .getByRole('radio', { name: 'Use a custom compliance policy' })
       .click();
@@ -154,11 +154,7 @@ test('Compliance alerts - lint warnings display', async ({ page, cleanup }) => {
     await expect(frame.getByRole('option', { name: policyName })).toBeVisible();
     await frame.getByRole('option', { name: policyName }).click();
     await expect(frame.getByRole('button', { name: policyName })).toBeVisible();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {

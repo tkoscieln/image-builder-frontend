@@ -64,17 +64,26 @@ test('Create a blueprint with Repeatable build customization', async ({
     ).toBeVisible();
   });
 
-  // Navigate to IB landing page and get the frame
-  await navigateToLandingPage(page);
+  await test.step('Navigate to IB landing page', async () => {
+    await navigateToLandingPage(page);
+  });
+
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame);
     await registerLater(frame);
   });
 
   await test.step('Check non-snapshot repository is disabled', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
     await frame
       .getByRole('radio', { name: /Enable repeatable build/i })
       .click();
@@ -82,7 +91,9 @@ test('Create a blueprint with Repeatable build customization', async ({
     await frame
       .getByRole('textbox', { name: /date picker/i })
       .fill('2025-12-24');
-    await frame.getByRole('button', { name: /Repositories/i }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await expect(frame.getByText(/Loading/i)).toBeHidden();
     await frame.getByRole('textbox').fill(repositoryName);
     await expect(frame.getByRole('row')).toHaveCount(3); // two base distro repos + header
@@ -100,7 +111,7 @@ test('Create a blueprint with Repeatable build customization', async ({
   });
 
   await test.step('Check Repeatable build step behaviour with no repos', async () => {
-    await frame.getByRole('button', { name: /Review and finish/i }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     const repeatableBuildCard = frame
       .locator('.pf-v6-c-card')
       .filter({ hasText: 'Enable repeatable build' });
@@ -110,7 +121,9 @@ test('Create a blueprint with Repeatable build customization', async ({
   });
 
   await test.step('Check Repeatable build step behaviour with 1 repo', async () => {
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await expect(
       frame.getByRole('columnheader', { name: 'Snapshot date' }),
     ).toBeVisible();
@@ -118,7 +131,7 @@ test('Create a blueprint with Repeatable build customization', async ({
     await frame
       .getByRole('option', { name: 'EPEL 10 Everything x86_64' })
       .click();
-    await frame.getByRole('button', { name: /Review and finish/i }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await expect(
       frame.getByRole('heading', { name: 'Enable repeatable build' }),
     ).toBeVisible();
@@ -127,20 +140,20 @@ test('Create a blueprint with Repeatable build customization', async ({
   });
 
   await test.step('Check Repeatable build with content template', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame.getByRole('radio', { name: /Use a content template/i }).click();
     await frame
       .getByRole('button', { name: /Select content template/i })
       .click();
     await expect(frame.getByText(/Loading/i)).toBeHidden();
     await frame.getByRole('menuitem').first().click();
-    await frame.getByRole('button', { name: /Review and finish/i }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     // TODO: content templates are not yet shown in the review step
     // await expect(frame.getByText(/Use a content template/i)).toBeVisible();
   });
 
   await test.step('Select and fill the Repeatable build step', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: /Enable repeatable build/i })
       .click();
@@ -148,11 +161,7 @@ test('Create a blueprint with Repeatable build customization', async ({
     await frame
       .getByRole('textbox', { name: /date picker/i })
       .fill('2026-01-01');
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -161,12 +170,12 @@ test('Create a blueprint with Repeatable build customization', async ({
 
   await test.step('Edit BP', async () => {
     await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-    await frame.getByRole('button', { name: 'Repeatable build' }).click(); // there is no revisit button specific to repeatable build
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await expect(
       frame.getByRole('textbox', { name: /date picker/i }),
     ).toHaveValue('2026-01-01');
     await frame.getByRole('button', { name: /today's date/i }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
+    await frame.getByRole('button', { name: 'Review image' }).click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();

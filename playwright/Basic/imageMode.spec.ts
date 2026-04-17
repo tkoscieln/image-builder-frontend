@@ -89,15 +89,11 @@ test('Image mode blueprint create, edit, export, import', async ({
   });
 
   await test.step('Create blueprint', async () => {
-    const firstNextButton = frame.getByRole('button', {
-      name: 'Next',
-      exact: true,
+    const reviewImageButton = frame.getByRole('button', {
+      name: 'Review image',
     });
-    await expect(firstNextButton).toBeEnabled({ timeout: 10000 });
-    await firstNextButton.click();
-    const nextButton = frame.getByRole('button', { name: 'Next', exact: true });
-    await expect(nextButton).toBeEnabled({ timeout: 10000 });
-    await nextButton.click();
+    await expect(reviewImageButton).toBeEnabled({ timeout: 10000 });
+    await reviewImageButton.click();
     await createBlueprint(frame, blueprintName);
   });
 
@@ -126,13 +122,11 @@ test('Image mode blueprint create, edit, export, import', async ({
       frame.getByRole('textbox', { name: 'blueprint user name' }),
     ).toHaveValue('testuser');
 
-    await frame.getByRole('button', { name: 'Next', exact: true }).click();
-    const saveNextButton = frame.getByRole('button', {
-      name: 'Next',
-      exact: true,
+    const reviewImageButton = frame.getByRole('button', {
+      name: 'Review image',
     });
-    await expect(saveNextButton).toBeEnabled({ timeout: 10000 });
-    await saveNextButton.click();
+    await expect(reviewImageButton).toBeEnabled({ timeout: 10000 });
+    await reviewImageButton.click();
     await frame
       .getByRole('button', { name: 'Save changes to blueprint' })
       .click();

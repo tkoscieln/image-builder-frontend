@@ -22,7 +22,6 @@ import {
   deleteBlueprint,
   exportBlueprint,
   fillInDetails,
-  fillInImageOutputGuest,
   importBlueprint,
 } from '../helpers/wizardHelpers';
 
@@ -168,13 +167,24 @@ registrationModes.forEach(
           await ensureAuthenticated(page);
         }
 
-        // Navigate to IB landing page and get the frame
-        await navigateToLandingPage(page);
+        await test.step('Navigate to IB landing page', async () => {
+          await navigateToLandingPage(page);
+        });
+
         const frame = ibFrame(page);
 
-        await test.step('Navigate to Registration step', async () => {
+        await test.step('Open Wizard', async () => {
+          await frame
+            .getByRole('button', { name: 'Create image blueprint' })
+            .click();
+        });
+
+        await test.step('Fill the BP details', async () => {
+          await fillInDetails(frame, blueprintName);
+        });
+
+        await test.step('Fill Image Output', async () => {
           await fillInImageOutput(frame);
-          await frame.getByRole('button', { name: 'Register' }).click();
         });
 
         await test.step(`Setup ${name} registration mode`, async () => {
@@ -214,9 +224,7 @@ registrationModes.forEach(
             await rhcSwitch.click();
             await expect(rhcSwitch).not.toBeChecked();
             await expect(insightsSwitch).toBeChecked(); // does not influence insights toggle
-            await frame
-              .getByRole('button', { name: 'Review and finish' })
-              .click();
+            await frame.getByRole('button', { name: 'Review image' }).click();
             await expect(
               frame.getByText('Register the system later'),
             ).toBeHidden();
@@ -236,7 +244,7 @@ registrationModes.forEach(
             }
             await expect(insightsReviewStep).toBeVisible();
             await expect(rhcReviewStep).toBeHidden();
-            await frame.getByRole('button', { name: 'Register' }).click();
+            await frame.getByRole('button', { name: 'Base settings' }).click();
             // check if the state is the same after returning from review step
             await expect(rhcSwitch).not.toBeChecked();
             await expect(insightsSwitch).toBeChecked();
@@ -246,9 +254,7 @@ registrationModes.forEach(
             await insightsSwitch.click();
             await expect(insightsSwitch).not.toBeChecked();
             await expect(rhcSwitch).not.toBeChecked(); // to use rhc, insights must be enabled
-            await frame
-              .getByRole('button', { name: 'Review and finish' })
-              .click();
+            await frame.getByRole('button', { name: 'Review image' }).click();
             await expect(
               frame.getByText('Register the system later'),
             ).toBeHidden();
@@ -267,7 +273,7 @@ registrationModes.forEach(
             }
             await expect(insightsReviewStep).toBeHidden();
             await expect(rhcReviewStep).toBeHidden();
-            await frame.getByRole('button', { name: 'Register' }).click();
+            await frame.getByRole('button', { name: 'Base settings' }).click();
             // check if the state is the same after returning from review step
             await expect(insightsSwitch).not.toBeChecked();
             await expect(rhcSwitch).not.toBeChecked();
@@ -276,9 +282,7 @@ registrationModes.forEach(
             await rhcSwitch.click();
             await expect(rhcSwitch).toBeChecked();
             await expect(insightsSwitch).toBeChecked(); // turning on rhc turns on insights
-            await frame
-              .getByRole('button', { name: 'Review and finish' })
-              .click();
+            await frame.getByRole('button', { name: 'Review image' }).click();
             await expect(
               frame.getByText('Register the system later'),
             ).toBeHidden();
@@ -303,7 +307,7 @@ registrationModes.forEach(
             }
             await expect(insightsReviewStep).toBeVisible();
             await expect(rhcReviewStep).toBeVisible();
-            await frame.getByRole('button', { name: 'Register' }).click();
+            await frame.getByRole('button', { name: 'Base settings' }).click();
             // check if the state is the same after returning from review step
             await expect(rhcSwitch).toBeChecked();
             await expect(insightsSwitch).toBeChecked();
@@ -319,7 +323,7 @@ registrationModes.forEach(
             await registrationCommandInput.pressSequentially('invalid-command');
             await registrationCommandInput.blur();
             await expect(
-              frame.getByRole('button', { name: 'Review and finish' }),
+              frame.getByRole('button', { name: 'Review image' }),
             ).toBeDisabled();
             await expect(
               frame.getByText('Invalid or missing token'),
@@ -335,7 +339,7 @@ registrationModes.forEach(
               ),
             ).toBeVisible();
             await expect(
-              frame.getByRole('button', { name: 'Review and finish' }),
+              frame.getByRole('button', { name: 'Review image' }),
             ).toBeEnabled();
 
             // Test valid command with no expiration
@@ -358,17 +362,14 @@ registrationModes.forEach(
             ).toBeHidden();
 
             await frame
-              .getByRole('button', { name: 'Systemd services' })
+              .getByRole('button', { name: 'Advanced settings' })
               .click();
             await expect(frame.getByText('register-satellite')).toBeVisible();
           }
         });
 
-        await test.step('Fill the BP details', async () => {
-          await frame
-            .getByRole('button', { name: 'Review and finish' })
-            .click();
-          await fillInDetails(frame, blueprintName);
+        await test.step('Navigate to Review', async () => {
+          await frame.getByRole('button', { name: 'Review image' }).click();
         });
 
         await test.step('Verify Review step shows correct registration details', async () => {
@@ -382,7 +383,7 @@ registrationModes.forEach(
 
         await test.step('Edit blueprint and verify registration persisted', async () => {
           await frame.getByRole('button', { name: 'Edit blueprint' }).click();
-          await frame.getByRole('button', { name: 'Register' }).click();
+          await frame.getByRole('button', { name: 'Base settings' }).click();
 
           // Verify the original registration mode is still selected
           if (name === 'automatic') {
@@ -403,9 +404,7 @@ registrationModes.forEach(
             ).toBeChecked();
           }
 
-          await frame
-            .getByRole('button', { name: 'Review and finish' })
-            .click();
+          await frame.getByRole('button', { name: 'Review image' }).click();
           await frame
             .getByRole('button', { name: 'Save changes to blueprint' })
             .click();
@@ -425,14 +424,28 @@ registrationModes.forEach(
         });
 
         await test.step('Verify import does not change registration settings', async () => {
-          await fillInImageOutputGuest(frame);
-          await frame.getByRole('button', { name: 'Register' }).click();
-          // Verify registration settings are preserved based on mode
-          await expect(
-            frame.getByRole('radio', {
-              name: 'Automatically register to Red Hat',
-            }),
-          ).toBeChecked();
+          await fillInImageOutput(frame);
+          await frame
+            .getByRole('textbox', { name: 'Blueprint name' })
+            .fill('tmp');
+          await frame.getByRole('button', { name: 'Base settings' }).click();
+          if (name === 'automatic') {
+            await expect(
+              frame.getByRole('radio', {
+                name: 'Automatically register to Red Hat',
+              }),
+            ).toBeChecked();
+          } else if (name === 'register-later') {
+            await expect(
+              frame.getByRole('radio', { name: 'Register later' }),
+            ).toBeChecked();
+          } else if (name === 'satellite') {
+            await expect(
+              frame.getByRole('radio', {
+                name: 'Register to a Satellite or Capsule',
+              }),
+            ).toBeChecked();
+          }
 
           await frame.getByRole('button', { name: 'Cancel' }).click();
         });
