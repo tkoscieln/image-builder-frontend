@@ -100,9 +100,7 @@ test('Create a blueprint with Repeatable build customization', async ({
     await frame
       .getByRole('textbox', { name: 'Filter repositories' })
       .fill(repositoryName);
-    await expect(frame.getByRole('grid').first().getByRole('row')).toHaveCount(
-      3,
-    ); // one base distro repo + header
+    await expect(frame.getByRole('row')).toHaveCount(3); // two base distro repos + header
     await expect(
       frame.getByRole('option', { name: repositoryName }),
     ).toBeVisible();

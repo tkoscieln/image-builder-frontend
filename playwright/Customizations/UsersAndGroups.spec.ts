@@ -231,22 +231,13 @@ test('Create a blueprint with Users customization', async ({
     ).toBeVisible();
 
     // Test 4: Empty username with password filled
-    await expect(
-      frame.getByRole('heading', {
-        name: 'Danger alert: Errors found',
-      }),
-    ).toBeHidden();
     await usernameInputs.nth(4).fill('');
     await passwordInputs.nth(4).fill('password123');
-    // Click Next to trigger validation
-    await frame.getByRole('button', { name: 'Next' }).click();
+    // Next and Review image buttons should be disabled due to validation errors
+    await expect(frame.getByRole('button', { name: 'Next' })).toBeDisabled();
     await expect(
-      frame.getByRole('heading', {
-        name: 'Danger alert: Errors found',
-      }),
-    ).toBeVisible();
-    // Go back to Advanced settings step to continue with other tests
-    await frame.getByRole('button', { name: 'Advanced settings' }).click();
+      frame.getByRole('button', { name: 'Review image' }),
+    ).toBeDisabled();
 
     // Test 5: Invalid group name with spaces
     await expect(

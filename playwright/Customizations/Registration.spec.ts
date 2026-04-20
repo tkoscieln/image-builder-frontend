@@ -71,7 +71,7 @@ const registrationModes = [
       // Conditional setup based on hosted vs on-premise
       if (isHosted()) {
         // Hosted: Select an activation key from dropdown
-        await frame.getByRole('button', { name: 'Menu toggle' }).click();
+        await frame.getByPlaceholder('Select activation key').click();
         await frame.getByRole('option', { name: 'activation-key-' }).click();
       } else if (isRhel(getHostDistroKey())) {
         // On-premise RHEL: Fill activation key and organization ID input fields
@@ -195,16 +195,15 @@ registrationModes.forEach(
           if (name === 'automatic') {
             // View details button only exists on hosted (ActivationKeysList); on-prem uses ManualActivationKey
             if (isHosted()) {
-              await expect(
-                frame.getByRole('button', { name: 'View details' }),
-              ).toBeVisible();
+              const viewDetailsBtn = frame
+                .getByRole('button', { name: 'View details' })
+                .first();
+              await expect(viewDetailsBtn).toBeVisible();
               await expect(frame.getByText('activation-key-')).toBeHidden();
-              await frame.getByRole('button', { name: 'View details' }).click();
-              await expect(
-                frame.getByRole('button', { name: 'View details' }),
-              ).toBeVisible();
+              await viewDetailsBtn.click();
+              await expect(viewDetailsBtn).toBeVisible();
               await expect(frame.getByText('activation-key-')).toBeVisible();
-              await frame.getByRole('button', { name: 'Close' }).click();
+              await frame.getByLabel('Close').click();
             }
 
             // Test enabling/disabling predictive analytics
