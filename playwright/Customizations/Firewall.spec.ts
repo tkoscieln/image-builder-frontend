@@ -334,7 +334,7 @@ test('Firewall fields collapse chips with show less / more', async ({
       await page.keyboard.press('Enter');
     }
 
-    await expect(frame.getByText('ssh')).toBeVisible();
+    await expect(frame.getByText('ssh', { exact: true })).toBeVisible();
     await expect(frame.getByText('http', { exact: true })).toBeVisible();
     await expect(frame.getByText('https')).toBeVisible();
     await expect(frame.getByText('dhcp')).toBeVisible();
