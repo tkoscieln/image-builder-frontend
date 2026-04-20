@@ -161,7 +161,9 @@ test('Create a blueprint with OpenSCAP customization', async ({
 
     await frame.getByRole('button', { name: 'Advanced settings' }).click();
 
-    await expect(frame.getByText('2 Added by OpenSCAP')).toBeVisible();
+    await expect(
+      frame.getByText('2 Added by OpenSCAP', { exact: true }),
+    ).toBeVisible();
     await expect(frame.getByText('audit_backlog_limit=8192')).toBeVisible();
     await expect(frame.getByText('audit=1')).toBeVisible();
     await frame
@@ -223,11 +225,9 @@ test('Create a blueprint with OpenSCAP customization', async ({
     await fillInImageOutput(frame);
     await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
     await frame.getByRole('button', { name: 'Base settings' }).click();
-    await frame.getByRole('textbox', { name: 'Type to filter' }).click();
+    frame.getByRole('button', { name: 'View details' }).nth(2);
     await expect(
-      frame.getByText(
-        'CIS Red Hat Enterprise Linux 9 Benchmark for Level 2 - Server',
-      ),
+      frame.getByText('Red Hat Enterprise Linux 9 CIS'),
     ).toBeVisible();
 
     await frame.getByRole('button', { name: 'Cancel' }).click();
