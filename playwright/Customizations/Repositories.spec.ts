@@ -69,11 +69,8 @@ test('Create blueprint with repository and test edit mode removal', async ({
     await fillInDetails(frame, blueprintName);
   });
 
-  await test.step('Fill in image output', async () => {
-    await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
-  });
-
-  await test.step('Register later', async () => {
+  await test.step('Fill in image output and registration', async () => {
+    await fillInImageOutput(frame, 'qcow2');
     await registerLater(frame);
   });
 
