@@ -90,8 +90,14 @@ test('Import a blueprint with invalid customization', async ({
       .getByRole('heading', { name: 'Firewall' })
       .scrollIntoViewIfNeeded();
     await expect(frame.getByText('Includes duplicate ports:')).toBeVisible();
-    await expect(frame.getByText('Includes duplicate enabled')).toBeVisible();
-    await expect(frame.getByText('Includes duplicate disabled')).toBeVisible();
+    await expect(
+      frame.getByText(
+        'Includes duplicate enabled services: service1: error status',
+      ),
+    ).toBeVisible();
+    await expect(
+      frame.getByText('Includes duplicate disabled services: service2'),
+    ).toBeVisible();
     await expect(frame.getByRole('button', { name: 'Next' })).toBeDisabled();
     await frame
       .getByRole('button', { name: 'Remove 2020:port' })
@@ -114,8 +120,12 @@ test('Import a blueprint with invalid customization', async ({
     await frame
       .getByRole('heading', { name: 'Systemd services' })
       .scrollIntoViewIfNeeded();
-    await expect(frame.getByText('Includes duplicate enabled')).toBeVisible();
-    await expect(frame.getByText('Includes duplicate disabled')).toBeVisible();
+    await expect(
+      frame.getByText('Includes duplicate enabled services: auditd'),
+    ).toBeVisible();
+    await expect(
+      frame.getByText('Includes duplicate disabled services: sssd'),
+    ).toBeVisible();
     await expect(frame.getByText('Includes duplicate masked')).toBeVisible();
     await expect(frame.getByRole('button', { name: 'Next' })).toBeDisabled();
     await frame.getByRole('button', { name: 'Remove auditd' }).first().click();
