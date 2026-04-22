@@ -70,20 +70,30 @@ test('Content integration test - Non repeatable build - URL source', async ({
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
     await registerLater(frame);
   });
 
   await test.step('Disable repeatable build', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: 'Disable repeatable build' })
       .click();
   });
 
   await test.step('Select the repository', async () => {
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Filter repositories' })
       .fill(repositoryName);
@@ -91,16 +101,11 @@ test('Content integration test - Non repeatable build - URL source', async ({
   });
 
   await test.step('Select the package', async () => {
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill(packageName);
     await frame.getByRole('option', { name: packageName }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -209,20 +214,30 @@ test('Content integration test - Non repeatable build - Upload source', async ({
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
     await registerLater(frame);
   });
 
   await test.step('Disable repeatable build', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: 'Disable repeatable build' })
       .click();
   });
 
   await test.step('Select the repository', async () => {
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Filter repositories' })
       .fill(repositoryName);
@@ -235,7 +250,6 @@ test('Content integration test - Non repeatable build - Upload source', async ({
   });
 
   await test.step('Select the package', async () => {
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill(packageName);
@@ -250,11 +264,7 @@ test('Content integration test - Non repeatable build - Upload source', async ({
       frame.getByRole('option', { name: dependencyPackageName }),
     ).toBeVisible();
     await frame.getByRole('option', { name: dependencyPackageName }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
@@ -316,20 +326,30 @@ test('Content integration test - Non repeatable build - Community repository', a
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
     await registerLater(frame);
   });
 
   await test.step('Disable repeatable build', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: 'Disable repeatable build' })
       .click();
   });
 
   await test.step('Select the repository', async () => {
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Filter repositories' })
       .fill(repositoryName);
@@ -337,16 +357,11 @@ test('Content integration test - Non repeatable build - Community repository', a
   });
 
   await test.step('Select the package', async () => {
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill(packageName);
     await frame.getByRole('option', { name: packageName }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {

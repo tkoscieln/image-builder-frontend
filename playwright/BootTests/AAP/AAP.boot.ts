@@ -76,7 +76,15 @@ test('AAP registration boot integration test', async ({ page, cleanup }) => {
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
     await registerLater(frame);
   });
@@ -92,11 +100,7 @@ test('AAP registration boot integration test', async ({ page, cleanup }) => {
     await frame
       .getByRole('textbox', { name: 'File upload' })
       .fill(validCertificate);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {

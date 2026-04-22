@@ -75,7 +75,6 @@ export const registerLater = async (page: Page | FrameLocator) => {
  */
 export const registerAutomatically = async (page: Page | FrameLocator) => {
   if (isHosted()) {
-    await page.getByRole('button', { name: 'Register' }).click();
     await page
       .getByRole('radio', { name: 'Automatically register to Red Hat' })
       .click();
@@ -103,8 +102,6 @@ export const registerAutomatically = async (page: Page | FrameLocator) => {
  */
 export const registerWithActivationKey = async (page: Page | FrameLocator) => {
   if (isHosted()) {
-    await page.getByRole('button', { name: 'Register' }).click();
-
     // Ensure "Automatically register to Red Hat" is selected (should be default)
     await expect(
       page.getByRole('radio', { name: 'Automatically register to Red Hat' }),

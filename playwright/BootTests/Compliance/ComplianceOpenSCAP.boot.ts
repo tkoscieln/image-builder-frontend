@@ -44,13 +44,20 @@ test('Compliance step integration test - OpenSCAP default profile', async ({
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
   });
 
   await test.step('Register system', async () => {
-    await page.getByRole('button', { name: 'Register' }).click();
-    await page
+    await frame
       .getByRole('radio', { name: 'Automatically register to Red Hat' })
       .click();
   });
@@ -63,16 +70,15 @@ test('Compliance step integration test - OpenSCAP default profile', async ({
   const baselineOscapScorePercent = 90;
 
   await test.step('Select OpenSCAP profile', async () => {
-    await frame
-      .getByLabel('Wizard steps')
-      .getByRole('button', { name: 'Security' })
-      .click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: 'Use a default OpenSCAP profile' })
       .click();
-    const profileDropdown = frame.getByRole('textbox', {
-      name: 'Type to filter',
-    });
+    const profileDropdown = frame
+      .getByRole('textbox', {
+        name: 'Type to filter',
+      })
+      .nth(1);
     await expect(profileDropdown).toBeEnabled({ timeout: 30000 });
     await profileDropdown.click();
     await expect(frame.getByRole('option').first()).toBeVisible({
@@ -87,7 +93,9 @@ test('Compliance step integration test - OpenSCAP default profile', async ({
   });
 
   await test.step('Add perl-XML-XPath package for OSCAP results parsing', async () => {
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill('perl-XML-XPath');
@@ -95,11 +103,7 @@ test('Compliance step integration test - OpenSCAP default profile', async ({
       frame.getByRole('option', { name: 'perl-XML-XPath' }),
     ).toBeVisible({ timeout: 60000 });
     await frame.getByRole('option', { name: 'perl-XML-XPath' }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {

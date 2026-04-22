@@ -78,33 +78,33 @@ test('Compliance step integration test - CIS', async ({ page, cleanup }) => {
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
   });
 
   await test.step('Register system', async () => {
-    await page.getByRole('button', { name: 'Register' }).click();
-    await page
+    await frame
       .getByRole('radio', { name: 'Automatically register to Red Hat' })
       .click();
   });
 
   await test.step('Select and fill the Compliance step', async () => {
-    await frame
-      .getByLabel('Wizard steps')
-      .getByRole('button', { name: 'Security' })
-      .click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame
       .getByRole('radio', { name: 'Use a custom compliance policy' })
       .click();
     await frame.getByRole('button', { name: 'None' }).click();
     await frame.getByRole('option', { name: policyName }).click();
-    await expect(frame.getByRole('button', { name: policyName })).toBeVisible(); // Wait for the policy to get selected
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await expect(frame.getByRole('button', { name: policyName })).toBeVisible();
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
