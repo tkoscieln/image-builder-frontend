@@ -167,6 +167,14 @@ test('Content integration test - Content Template', async ({
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Set Blueprint name', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
   await test.step('Fill in image output', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
   });
@@ -176,7 +184,7 @@ test('Content integration test - Content Template', async ({
   });
 
   await test.step('Select Content Template in Repeatable build step', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame.getByRole('radio', { name: 'Use a content template' }).click();
 
     const templatesDropdown = frame.getByRole('button', {
@@ -202,7 +210,9 @@ test('Content integration test - Content Template', async ({
   // SMELL: This shouldn't be necessary, but without loading this wizard step, the package search will fail
   await test.step('Verify repositories are included from template', async () => {
     // Navigate to Repositories step to ensure the template's repositories are loaded
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await expect(
       frame.getByRole('row').filter({ hasText: repositoryName }),
     ).toBeVisible({ timeout: 30000 });
@@ -213,7 +223,6 @@ test('Content integration test - Content Template', async ({
 
   // Custom package is installed here, not layered package (pcs)
   await test.step('Select the package from custom repository', async () => {
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill(packageName);
@@ -224,13 +233,9 @@ test('Content integration test - Content Template', async ({
   });
 
   await test.step('Set hostname for system identification', async () => {
-    await frame.getByRole('button', { name: 'Hostname' }).click();
+    await frame.getByRole('button', { name: 'Advanced settings' }).click();
     await frame.getByRole('textbox', { name: 'hostname input' }).fill(hostname);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Set Blueprint name', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Save the Blueprint', async () => {

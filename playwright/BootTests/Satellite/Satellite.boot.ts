@@ -45,9 +45,16 @@ test('Satellite registration boot integration test', async ({
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
-    await page.getByRole('button', { name: 'Register' }).click();
   });
 
   await test.step('Select and fill Satellite on Registration step', async () => {
@@ -62,11 +69,7 @@ test('Satellite registration boot integration test', async ({
     await frame
       .getByRole('textbox', { name: 'File upload' })
       .fill(validCertificate);
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {

@@ -114,13 +114,21 @@ test('Content integration test - Repeatable build - URL source', async ({
   await navigateToLandingPage(page);
   const frame = ibFrame(page);
 
-  await test.step('Navigate to optional steps in Wizard', async () => {
+  await test.step('Open Wizard', async () => {
+    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  });
+
+  await test.step('Fill the BP details', async () => {
+    await fillInDetails(frame, blueprintName);
+  });
+
+  await test.step('Fill Image Output and Registration', async () => {
     await fillInImageOutput(frame, 'qcow2', 'rhel10', 'x86_64');
     await registerLater(frame);
   });
 
   await test.step('Enable repeatable build and select snapshot date', async () => {
-    await frame.getByRole('button', { name: 'Repeatable build' }).click();
+    await frame.getByRole('button', { name: 'Base settings' }).click();
     await frame.getByRole('radio', { name: 'Enable repeatable build' }).click();
 
     // TODO Would this work on the 1st?
@@ -139,7 +147,9 @@ test('Content integration test - Repeatable build - URL source', async ({
   });
 
   await test.step('Select the repository', async () => {
-    await frame.getByRole('button', { name: 'Repositories' }).click();
+    await frame
+      .getByRole('button', { name: 'Repositories and packages' })
+      .click();
     await frame
       .getByRole('textbox', { name: 'Filter repositories' })
       .fill(repositoryName);
@@ -147,16 +157,11 @@ test('Content integration test - Repeatable build - URL source', async ({
   });
 
   await test.step('Select the package', async () => {
-    await frame.getByRole('button', { name: 'Additional packages' }).click();
     await frame
       .getByRole('textbox', { name: 'Search packages' })
       .fill(packageName);
     await frame.getByRole('option', { name: packageName }).click();
-    await frame.getByRole('button', { name: 'Review and finish' }).click();
-  });
-
-  await test.step('Fill the BP details', async () => {
-    await fillInDetails(frame, blueprintName);
+    await frame.getByRole('button', { name: 'Review image' }).click();
   });
 
   await test.step('Create BP', async () => {
