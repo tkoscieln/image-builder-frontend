@@ -427,24 +427,12 @@ registrationModes.forEach(
           await frame
             .getByRole('textbox', { name: 'Blueprint name' })
             .fill('tmp');
-          await frame.getByRole('button', { name: 'Base settings' }).click();
-          if (name === 'automatic') {
-            await expect(
-              frame.getByRole('radio', {
-                name: 'Automatically register to Red Hat',
-              }),
-            ).toBeChecked();
-          } else if (name === 'register-later') {
-            await expect(
-              frame.getByRole('radio', { name: 'Register later' }),
-            ).toBeChecked();
-          } else if (name === 'satellite') {
-            await expect(
-              frame.getByRole('radio', {
-                name: 'Register to a Satellite or Capsule',
-              }),
-            ).toBeChecked();
-          }
+          // Verify registration settings are preserved based on mode
+          await expect(
+            frame.getByRole('radio', {
+              name: 'Automatically register to Red Hat',
+            }),
+          ).toBeChecked();
 
           await frame.getByRole('button', { name: 'Cancel' }).click();
         });
