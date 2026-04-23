@@ -382,8 +382,12 @@ const OscapContent = () => {
             </Alert>
           )}
 
-        {isError && (
-          <Alert title='Error fetching the profiles' variant='danger' isInline>
+        {isError && onPremOpenSCAPAvailable && (
+          <Alert
+            title='Error fetching the OpenSCAP profiles'
+            variant='danger'
+            isInline
+          >
             Cannot get the list of profiles
           </Alert>
         )}
