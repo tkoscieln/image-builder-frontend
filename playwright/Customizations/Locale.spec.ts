@@ -42,7 +42,10 @@ test('Create a blueprint with Locale customization', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await frame
+      .getByRole('button', { name: 'Create image blueprint' })
+      .first()
+      .click();
   });
 
   await test.step('Fill the BP details', async () => {
@@ -259,6 +262,9 @@ test('Create a blueprint with Locale customization', async ({
 
   await test.step('Review imported BP', async () => {
     await fillInImageOutput(frame);
+    if (!isHosted()) {
+      await registerLater(frame);
+    }
     await frame.getByRole('textbox', { name: 'Blueprint name' }).fill('tmp');
     await frame.getByRole('button', { name: 'Advanced settings' }).click();
     const keyboardGroup = frame.getByRole('group', { name: 'Keyboard' });

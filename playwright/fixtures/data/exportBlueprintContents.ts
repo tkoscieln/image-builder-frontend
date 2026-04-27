@@ -1,3 +1,7 @@
+import { getDefaultTimezone } from '../../helpers/helpers';
+
+const tz = getDefaultTimezone();
+
 export const exportedDiskBP = (blueprintName: string): string => {
   return `name = "${blueprintName}"
 
@@ -31,7 +35,7 @@ fs_type = "xfs"
 mountpoint = "/var"
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;
@@ -52,7 +56,7 @@ mountpoint = "/srv/data"
 minsize = 21474836480
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;
@@ -62,7 +66,7 @@ export const exportedFirewallBP = (blueprintName: string): string => {
   return `name = "${blueprintName}"
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]
@@ -82,7 +86,7 @@ export const exportedHostnameBP = (blueprintName: string): string => {
 hostname = "testsystemedited"
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;
@@ -96,7 +100,7 @@ name = "kernel-debug"
 append = "rootwait console=tty0 console=ttyS0,115200n8 new=argument"
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;
@@ -106,7 +110,7 @@ export const exportedLocaleBP = (blueprintName: string): string => {
   return `name = "${blueprintName}"
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8", "ru_RU.UTF-8", "en_GB.UTF-8", "fy_DE.UTF-8" ]
@@ -130,7 +134,7 @@ masked = [ "masked-service" ]
 disabled = [ "disabled-service" ]
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;
@@ -169,7 +173,7 @@ name = "ops"
 gid = 1002
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;
@@ -203,7 +207,7 @@ groups = []
 password = ""
 
 [customizations.timezone]
-timezone = "Etc/UTC"
+timezone = "${tz}"
 
 [customizations.locale]
 languages = [ "C.UTF-8" ]`;

@@ -189,6 +189,15 @@ export const deleteBlueprintUI = async (page: Page, blueprintName: string) => {
 
       // Check if the blueprint is already on the landing page
       if (!(await frame.locator(`button[id="${blueprintName}"]`).isVisible())) {
+        if (
+          await frame
+            .getByRole('heading', { name: 'No blueprints' })
+            .isVisible()
+        ) {
+          // Empty state - the blueprint creation failed and no other is on the account -> fail gracefully
+          // Happens mostly on Cockpit - Search input is not visible in this state
+          return;
+        }
         await frame
           .getByRole('textbox', { name: 'Search input' })
           .fill(blueprintName);

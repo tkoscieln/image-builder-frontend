@@ -178,6 +178,7 @@ registrationModes.forEach(
         await test.step('Open Wizard', async () => {
           await frame
             .getByRole('button', { name: 'Create image blueprint' })
+            .first()
             .click();
         });
 

@@ -9,7 +9,7 @@ import {
 } from '../BootTests/Compliance/helpers';
 import { test } from '../fixtures/customizations';
 import { isServiceAvailable } from '../helpers/apiHelpers';
-import { isHosted, togglePreview } from '../helpers/helpers';
+import { isHosted } from '../helpers/helpers';
 import { login } from '../helpers/login';
 import {
   fillInImageOutput,

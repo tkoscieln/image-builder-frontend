@@ -24,7 +24,10 @@ test('shows on-premise wildcard search instructions when running on-premise', as
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await frame
+      .getByRole('button', { name: 'Create image blueprint' })
+      .first()
+      .click();
   });
 
   await test.step('Navigate to packages step', async () => {

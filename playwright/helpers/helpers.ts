@@ -118,6 +118,14 @@ export const getHostArch = (): string => {
   return execSync('uname -m').toString('utf-8').replace(/\s/g, '');
 };
 
+export const getDefaultTimezone = (): string => {
+  if (isHosted()) {
+    return 'Etc/UTC';
+  }
+  const distroKey = getHostDistroKey();
+  return distroKey === 'rhel-10' ? 'Etc/UTC' : 'America/New_York';
+};
+
 export const uploadCertificateFile = async (
   scope: Page | FrameLocator,
   uploadButton: Locator,
