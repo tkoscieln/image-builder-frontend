@@ -171,7 +171,6 @@ test('Create a blueprint with Repeatable build customization', async ({
       .click();
     // Wait for menu to appear, then close it and re-open it, PW selectors are not matching
     // the menu items for unknown reason on first open
-    await page.waitForTimeout(2000);
     await frame
       .getByRole('button', { name: /Select content template/i })
       .click();
@@ -179,7 +178,6 @@ test('Create a blueprint with Repeatable build customization', async ({
       .getByRole('button', { name: /Select content template/i })
       .click();
     await expect(frame.getByText(/Loading/i)).toBeHidden();
-    await page.waitForTimeout(2000);
     await frame.getByRole('menuitem').first().click();
     await frame.getByRole('button', { name: 'Review image' }).click();
     await expect(
