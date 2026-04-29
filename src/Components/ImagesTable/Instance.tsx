@@ -46,6 +46,7 @@ export const AwsS3Instance = ({
   const fileExtensions: { [key in ImageTypes]: string } = {
     aws: '',
     azure: '',
+    'bootable-container-iso': '',
     'edge-commit': '',
     'edge-installer': '',
     gcp: '',
