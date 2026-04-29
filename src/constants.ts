@@ -74,6 +74,7 @@ export const AARCH64 = 'aarch64';
 export const targetOptions: { [key in ImageTypes]: string } = {
   aws: 'Amazon Web Services',
   azure: 'Microsoft Azure',
+  'bootable-container-iso': '',
   'edge-commit': 'Edge Commit',
   'edge-installer': 'Edge Installer',
   gcp: 'Google Cloud',
@@ -94,6 +95,7 @@ export const targetOptions: { [key in ImageTypes]: string } = {
 export const simpleTargetNames: { [key in ImageTypes]: string } = {
   aws: 'AWS',
   azure: 'Microsoft Azure',
+  'bootable-container-iso': '',
   'edge-commit': 'Edge Commit',
   'edge-installer': 'Edge Installer',
   gcp: 'Google Cloud',

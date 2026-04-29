@@ -358,6 +358,11 @@ export type BootcDistributionItem = {
   arch: string;
   /** Derived container image reference, only references listed in the bootc distributions list are allowed. */
   reference: string;
+  /** List of allowed payload container references for
+    bootable-container-iso image type. Only present for
+    bootable-container-iso entries.
+     */
+  iso_payload_references?: string[] | undefined;
 };
 export type DistributionsResponse = (
   | DistributionItem
@@ -466,10 +471,18 @@ export type BootcBody = {
     returned by GET /distributions?kind=bootc.
      */
   reference: string;
+  /** Optional container image reference for a payload container to embed
+    in the ISO. When set, the payload container is available at
+    install/boot time. Only valid for bootable-container-iso image type.
+    Must be one of the references listed in the distribution's bootc
+    configuration.
+     */
+  iso_payload_reference?: string | undefined;
 };
 export type ImageTypes =
   | "aws"
   | "azure"
+  | "bootable-container-iso"
   | "edge-commit"
   | "edge-installer"
   | "gcp"
