@@ -10,6 +10,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerLater,
 } from '../../helpers/wizardHelpers';
 
@@ -28,7 +29,7 @@ test('Create a blueprint with Azure target', async ({ page, cleanup }) => {
   const frame = ibFrame(page);
 
   await test.step('Select Azure target and verify field behavior', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
 
     await fillInDetails(frame, blueprintName);
 
@@ -147,7 +148,7 @@ test('Deselecting Azure removes its config from the blueprint', async ({
   const frame = ibFrame(page);
 
   await test.step('Select Azure and fill in fields', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
 
     await fillInDetails(frame, blueprintName);
 

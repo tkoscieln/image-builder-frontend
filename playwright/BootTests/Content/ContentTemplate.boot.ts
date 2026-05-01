@@ -22,6 +22,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerAutomatically,
 } from '../../helpers/wizardHelpers';
 import {
@@ -168,7 +169,7 @@ test('Content integration test - Content Template', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Set Blueprint name', async () => {

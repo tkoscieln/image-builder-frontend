@@ -18,6 +18,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerLater,
 } from '../helpers/wizardHelpers';
 
@@ -62,7 +63,7 @@ test('Create blueprint with repository and test edit mode removal', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

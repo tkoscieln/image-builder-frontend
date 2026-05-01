@@ -24,6 +24,7 @@ import {
   exportBlueprint,
   fillInDetails,
   importBlueprint,
+  openWizard,
   registerLater,
 } from '../helpers/wizardHelpers';
 
@@ -73,7 +74,7 @@ test('Create a blueprint with Repeatable build customization', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

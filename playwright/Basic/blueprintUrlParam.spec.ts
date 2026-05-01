@@ -14,6 +14,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerLater,
 } from '../helpers/wizardHelpers';
 
@@ -35,7 +36,7 @@ test('Navigate with valid blueprint_id URL parameter', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Create a blueprint', async () => {

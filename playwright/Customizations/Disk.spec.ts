@@ -19,6 +19,7 @@ import {
   exportBlueprint,
   fillInDetails,
   importBlueprint,
+  openWizard,
   registerLater,
   verifyExportedBlueprint,
 } from '../helpers/wizardHelpers';
@@ -41,10 +42,7 @@ test('Create a blueprint with Disk customization', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame
-      .getByRole('button', { name: 'Create image blueprint' })
-      .first()
-      .click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

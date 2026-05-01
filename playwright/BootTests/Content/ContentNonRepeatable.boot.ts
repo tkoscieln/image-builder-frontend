@@ -16,6 +16,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerLater,
 } from '../../helpers/wizardHelpers';
 import {
@@ -71,7 +72,7 @@ test('Content integration test - Non repeatable build - URL source', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {
@@ -215,7 +216,7 @@ test('Content integration test - Non repeatable build - Upload source', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {
@@ -327,7 +328,7 @@ test('Content integration test - Non repeatable build - Community repository', a
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

@@ -13,6 +13,7 @@ import {
   deleteBlueprint,
   exportBlueprint,
   importBlueprint,
+  openWizard,
 } from '../helpers/wizardHelpers';
 
 test('Image mode blueprint create, edit, export, import', async ({
@@ -46,7 +47,7 @@ test('Image mode blueprint create, edit, export, import', async ({
 
   const frame = ibFrame(page);
 
-  await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+  await openWizard(frame);
 
   // Skip the test if the image mode flag is not enabled in this environment
   const imageModeToggle = frame.getByRole('button', { name: 'Image mode' });

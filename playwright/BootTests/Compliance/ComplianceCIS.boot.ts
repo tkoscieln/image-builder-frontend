@@ -15,6 +15,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
 } from '../../helpers/wizardHelpers';
 import {
   buildImage,
@@ -79,7 +80,7 @@ test('Compliance step integration test - CIS', async ({ page, cleanup }) => {
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

@@ -8,7 +8,7 @@ import {
   ibFrame,
   navigateToLandingPage,
 } from '../helpers/navHelpers';
-import { registerLater } from '../helpers/wizardHelpers';
+import { openWizard, registerLater } from '../helpers/wizardHelpers';
 
 test('shows on-premise wildcard search instructions when running on-premise', async ({
   page,
@@ -24,10 +24,7 @@ test('shows on-premise wildcard search instructions when running on-premise', as
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame
-      .getByRole('button', { name: 'Create image blueprint' })
-      .first()
-      .click();
+    await openWizard(frame);
   });
 
   await test.step('Navigate to packages step', async () => {

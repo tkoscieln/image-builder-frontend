@@ -13,6 +13,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerLater,
 } from '../helpers/wizardHelpers';
 
@@ -29,10 +30,7 @@ test('Basic create/build/delete test', async ({ page, cleanup }) => {
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame
-      .getByRole('button', { name: 'Create image blueprint' })
-      .first()
-      .click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {
@@ -98,10 +96,7 @@ test('Basic delete BP tests', async ({ page }) => {
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame
-      .getByRole('button', { name: 'Create image blueprint' })
-      .first()
-      .click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

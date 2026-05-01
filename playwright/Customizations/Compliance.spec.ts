@@ -20,6 +20,7 @@ import {
   createBlueprint,
   deleteBlueprint,
   fillInDetails,
+  openWizard,
   registerLater,
 } from '../helpers/wizardHelpers';
 
@@ -55,7 +56,7 @@ test('Create a blueprint with Compliance policy selected', async ({
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {
@@ -134,7 +135,7 @@ test('Compliance alerts - lint warnings display', async ({ page, cleanup }) => {
   const frame = ibFrame(page);
 
   await test.step('Open Wizard', async () => {
-    await frame.getByRole('button', { name: 'Create image blueprint' }).click();
+    await openWizard(frame);
   });
 
   await test.step('Fill the BP details', async () => {

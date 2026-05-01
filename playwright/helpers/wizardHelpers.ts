@@ -11,6 +11,13 @@ import { ibFrame, navigateToLandingPage } from './navHelpers';
 
 import isRhel from '../../src/Utilities/isRhel';
 
+export const openWizard = async (scope: Page | FrameLocator) => {
+  await scope
+    .getByRole('button', { name: 'Create image blueprint' })
+    .first()
+    .click();
+};
+
 /**
  * Clicks the create button, handles the modal, clicks the button again and selects the BP in the list
  * @param page - the page object

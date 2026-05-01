@@ -23,6 +23,7 @@ import {
   exportBlueprint,
   fillInDetails,
   importBlueprint,
+  openWizard,
 } from '../helpers/wizardHelpers';
 
 export const SATELLITE_COMMAND = `
@@ -176,10 +177,7 @@ registrationModes.forEach(
         const frame = ibFrame(page);
 
         await test.step('Open Wizard', async () => {
-          await frame
-            .getByRole('button', { name: 'Create image blueprint' })
-            .first()
-            .click();
+          await openWizard(frame);
         });
 
         await test.step('Fill the BP details', async () => {
